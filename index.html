@@ -409,14 +409,12 @@ input, select, textarea, button { font-family: var(--sans); }
   box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
   transition: box-shadow .2s, transform .2s;
   text-align: center;
-  isolation: isolate;
 }
 .kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .kpi-card::before {
   content: ''; position: absolute; top: 0; right: 0;
   width: 80px; height: 80px; border-radius: 0 var(--radius-lg) 0 80px;
   background: var(--primary-lt); opacity: 0.7;
-  z-index: 0;
 }
 .kpi-card.danger::before { background: var(--danger-lt); }
 .kpi-card.gold::before { background: var(--warning-lt); }
@@ -424,39 +422,15 @@ input, select, textarea, button { font-family: var(--sans); }
 .kpi-label {
   font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
   color: var(--muted); margin-bottom: 10px;
-  position: relative; z-index: 2;
 }
 .kpi-val {
   font-family: var(--mono); font-size: 36px; font-weight: 700;
   color: var(--primary); line-height: 1; text-align: center;
-  position: relative; z-index: 2;
 }
 .kpi-card.danger .kpi-val { color: var(--danger); }
 .kpi-card.gold .kpi-val { color: var(--warning); }
 .kpi-card.green .kpi-val { color: var(--success); }
-.kpi-sub { font-size: 12.5px; color: var(--muted); margin-top: 6px; position: relative; z-index: 2; }
-
-/* ── PAGE EXPORT BUTTON ── */
-.page-export-wrap { position: relative; display: inline-block; }
-.page-export-btn {
-  background: var(--white); border: 1.5px solid var(--primary); color: var(--primary);
-  border-radius: var(--radius); padding: 5px 13px; font-size: 12px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all .15s;
-  white-space: nowrap;
-}
-.page-export-btn:hover { background: var(--primary); color: #fff; }
-.page-export-dd {
-  display: none; position: absolute; right: 0; top: calc(100% + 4px);
-  background: var(--white); border: 1px solid var(--gray1); border-radius: var(--radius);
-  box-shadow: var(--shadow-md); min-width: 190px; z-index: 999;
-}
-.page-export-dd.open { display: block; }
-.page-export-item {
-  padding: 10px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 9px;
-  color: var(--navy); border-bottom: 1px solid var(--gray1); transition: background .12s;
-}
-.page-export-item:last-child { border-bottom: none; }
-.page-export-item:hover { background: var(--primary-lt); color: var(--primary); }
+.kpi-sub { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
 
 /* ── SECTION CARDS ── */
 .sec-card {
@@ -943,7 +917,20 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
     </div>
     <div class="topbar-right no-print" id="topbar-actions">
       <button id="refresh-db-btn" class="btn btn-outline btn-sm" onclick="refreshFromSupabase()" title="Refresh data dari Supabase" style="font-size:12px;">🔄 Refresh Data</button>
-
+      <div class="export-wrap">
+        <button class="export-btn" onclick="toggleExportDropdown(event)" id="export-main-btn">&#x1F4E4; EKSPORT &#x25BE;</button>
+        <div class="export-dropdown">
+          <div class="export-opt" onclick="exportCurrentPage('csv')">
+            <span class="export-opt-icon">&#x1F4CA;</span> Google Sheets (CSV)
+          </div>
+          <div class="export-opt" onclick="exportCurrentPage('pdf')">
+            <span class="export-opt-icon">&#x1F4C4;</span> PDF (A4)
+          </div>
+          <div class="export-opt" onclick="exportCurrentPage('image')">
+            <span class="export-opt-icon">&#x1F5BC;</span> Imej (A4)
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1014,7 +1001,6 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="sec-count" id="table-count">—</span>
           <button class="btn btn-white btn-sm" onclick="openAddMemberModal()">+ Tambah Ahli</button>
-          <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('senarai','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('senarai','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('senarai','image')">🖼 &nbsp;Imej (A4)</div></div></div>
         </div>
       </div>
       <div class="table-wrap">
@@ -1040,24 +1026,12 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 
   <!-- ══ DAERAH ══ -->
   <div id="page-daerah" class="page">
-    <div class="sec-card" style="margin-bottom:14px;padding:12px 18px;">
-      <div class="sec-head" style="margin-bottom:0;">
-        <h3>🗺 Ahli Mengikut Daerah</h3>
-        <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('daerah','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('daerah','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('daerah','image')">🖼 &nbsp;Imej (A4)</div></div></div>
-      </div>
-    </div>
     <div class="district-grid" id="district-grid"></div>
     <div id="district-tables"></div>
   </div>
 
   <!-- ══ YURAN TRACKER ══ -->
   <div id="page-yuran" class="page">
-  <div class="sec-card no-print" style="margin-bottom:14px;padding:10px 18px;">
-    <div class="sec-head" style="margin-bottom:0;">
-      <h3>💰 Yuran Tracker</h3>
-      <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('yuran','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('yuran','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('yuran','image')">🖼 &nbsp;Imej (A4)</div></div></div>
-    </div>
-  </div>
     <div class="kpi-grid kpi-4" style="margin-bottom:8px;">
       <div class="kpi-card danger">
         <div class="kpi-label">BELUM BAYAR 2025</div>
@@ -1117,12 +1091,6 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 
   <!-- ══ SSM TRACKER ══ -->
   <div id="page-ssm" class="page">
-  <div class="sec-card no-print" style="margin-bottom:14px;padding:10px 18px;">
-    <div class="sec-head" style="margin-bottom:0;">
-      <h3>🏢 SSM Tracker</h3>
-      <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('ssm','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('ssm','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('ssm','image')">🖼 &nbsp;Imej (A4)</div></div></div>
-    </div>
-  </div>
     <div class="kpi-grid kpi-3">
       <div class="kpi-card danger">
         <div class="kpi-label">SSM Telah Luput</div>
@@ -1153,12 +1121,6 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 
   <!-- ══ FOLLOW UP ══ -->
   <div id="page-followup" class="page">
-  <div class="sec-card no-print" style="margin-bottom:14px;padding:10px 18px;">
-    <div class="sec-head" style="margin-bottom:0;">
-      <h3>📞 Follow Up</h3>
-      <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('followup','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('followup','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('followup','image')">🖼 &nbsp;Imej (A4)</div></div></div>
-    </div>
-  </div>
     <div class="fu-counters">
       <div class="fu-counter"><div class="fu-count" id="fu-count-yuran">0</div><div class="fu-label">Yuran Belum Bayar</div></div>
       <div class="fu-counter"><div class="fu-count" id="fu-count-ssm">0</div><div class="fu-label">SSM Perlu Diperbaharui</div></div>
@@ -1286,29 +1248,9 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
       </div>
     </div>
     <div class="sec-card">
-      <div class="sec-head"><h3>&#x1F4CB; Log Sandaran Tempatan</h3></div>
+      <div class="sec-head"><h3>&#x1F4CB; Log Sandaran</h3></div>
       <div class="sec-body" style="padding:0;">
         <div id="backup-log-list"></div>
-      </div>
-    </div>
-    <div class="sec-card" style="margin-top:18px;">
-      <div class="sec-head">
-        <h3>☁️ Sandaran Automatik Supabase</h3>
-        <button class="btn btn-white btn-sm" onclick="triggerManualBackup()" id="manual-backup-btn">🔄 Backup Sekarang</button>
-      </div>
-      <div class="sec-body" style="padding:0;">
-        <div id="supabase-backup-info" style="padding:12px 16px;font-size:13px;color:var(--muted);">Memuatkan sejarah sandaran...</div>
-        <div style="overflow-x:auto;">
-          <table class="data-table" id="supabase-backup-table" style="display:none;">
-            <thead>
-              <tr><th>#</th><th>Tarikh</th><th>Masa</th><th>Rekod</th><th>Jenis</th><th>Tindakan</th></tr>
-            </thead>
-            <tbody id="supabase-backup-tbody"></tbody>
-          </table>
-        </div>
-        <div style="padding:10px 16px;font-size:11px;color:var(--muted);border-top:1px solid var(--gray1);">
-          ⏰ Backup automatik setiap hari jam <strong>12:00 Tengah Malam (MYT)</strong> &nbsp;|&nbsp; Simpan <strong>30 backup</strong> terakhir
-        </div>
       </div>
     </div>
   </div>
@@ -1482,40 +1424,6 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
   </div>
 </div>
 
-<!-- ══ MODAL: USER LOG ══ -->
-<div class="modal-overlay" id="user-log-modal">
-  <div class="modal" style="max-width:780px;width:95%;">
-    <div class="modal-head" style="display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <h3 id="user-log-modal-title" style="margin:0;">Log Aktiviti</h3>
-        <div id="user-log-modal-sub" style="font-size:12px;color:var(--muted);margin-top:2px;"></div>
-      </div>
-      <button class="modal-close" onclick="closeModal('user-log-modal')">✕</button>
-    </div>
-    <div class="modal-body" style="padding:0;">
-      <div id="user-log-stats" style="display:flex;gap:0;border-bottom:1px solid var(--gray1);"></div>
-      <div style="overflow-x:auto;max-height:420px;overflow-y:auto;">
-        <table class="data-table" style="min-width:600px;">
-          <thead>
-            <tr>
-              <th style="width:40px;">#</th>
-              <th>Tarikh &amp; Masa</th>
-              <th>Aktiviti</th>
-              <th style="width:120px;">Sesi</th>
-              <th style="width:90px;">Jenis</th>
-            </tr>
-          </thead>
-          <tbody id="user-log-tbody"></tbody>
-        </table>
-      </div>
-      <div style="padding:12px 16px;border-top:1px solid var(--gray1);display:flex;justify-content:flex-end;gap:10px;">
-        <button class="btn btn-outline-red btn-sm" onclick="clearUserLog()">🗑 Padam Log</button>
-        <button class="btn btn-outline btn-sm" onclick="closeModal('user-log-modal')">Tutup</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
 // DATA
 // ═══════════════════════════════════════════════════════════
@@ -1626,16 +1534,6 @@ function getYuranDaftar(f){return YURAN_TABLE[f]?YURAN_TABLE[f][0]:0;}
 function getYuranTahunan(f){return YURAN_TABLE[f]?YURAN_TABLE[f][1]:0;}
 var currentUser = null;
 var activityLogs = [];
-var sessionStartTime = null;
-var viewingLogUser = null;
-
-// ── PERSISTENT PER-USER LOG ──
-function _loadUserLogs() {
-  try { return JSON.parse(localStorage.getItem('dpmm_user_logs') || '{}'); } catch(e) { return {}; }
-}
-function _saveUserLogs(logs) {
-  try { localStorage.setItem('dpmm_user_logs', JSON.stringify(logs)); } catch(e) {}
-}
 
 function doLogin() {
   var uid = document.getElementById('login-user').value.trim();
@@ -1654,7 +1552,6 @@ function doLogin() {
   var dn = user.role==='admin'?'ADMIN':user.pass.replace(/[^A-Z]/g,'');
   document.getElementById('sidebar-userid').textContent = dn;
   if (user.role === 'admin') document.getElementById('admin-nav-item').style.display = 'flex';
-  sessionStartTime = new Date();
   addLog('Log masuk: ' + user.name);
 
   // Fetch members from Supabase, then show the app
@@ -1684,15 +1581,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function doLogout() {
-  if (currentUser) {
-    var durText = '';
-    if (sessionStartTime) {
-      var mins = Math.round((new Date() - sessionStartTime) / 60000);
-      durText = ' (Durasi: ' + (mins < 60 ? mins + ' min' : Math.floor(mins/60) + 'j ' + (mins%60) + 'min') + ')';
-    }
-    addLog('Log keluar: ' + currentUser.name + durText);
-    sessionStartTime = null;
-  }
+  if (currentUser) addLog('Log keluar: ' + currentUser.name);
   currentUser = null;
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-user').value = '';
@@ -1703,23 +1592,8 @@ function doLogout() {
 
 function addLog(msg) {
   var now = new Date();
-  var uid = currentUser ? currentUser.id : '?';
-  var entry = {
-    ts: now.toISOString(),
-    time: now.toLocaleString('ms-MY'),
-    msg: msg,
-    user: uid,
-    sessionId: sessionStartTime ? sessionStartTime.toISOString() : null
-  };
-  activityLogs.unshift(entry);
-  if (activityLogs.length > 200) activityLogs.pop();
-  if (uid !== '?') {
-    var allLogs = _loadUserLogs();
-    if (!allLogs[uid]) allLogs[uid] = [];
-    allLogs[uid].unshift(entry);
-    if (allLogs[uid].length > 500) allLogs[uid] = allLogs[uid].slice(0, 500);
-    _saveUserLogs(allLogs);
-  }
+  activityLogs.unshift({ time: now.toLocaleString('ms-MY'), msg: msg, user: currentUser ? currentUser.id : '?' });
+  if (activityLogs.length > 100) activityLogs.pop();
 }
 
 var backupLogs = [];
@@ -1785,81 +1659,6 @@ function downloadFile(name, content, type) {
   var a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([content], {type: type}));
   a.download = name; a.click();
-}
-
-// ── SUPABASE AUTO BACKUP ─────────────────────────────────
-async function loadSupabaseBackups() {
-  var info = document.getElementById('supabase-backup-info');
-  var table = document.getElementById('supabase-backup-table');
-  var tbody = document.getElementById('supabase-backup-tbody');
-  if (!info || !tbody) return;
-  try {
-    var { data, error } = await supabaseClient
-      .from('BACKUP_AHLI')
-      .select('id, backup_date, backup_time, triggered_by, total_records')
-      .order('backup_date', { ascending: false })
-      .order('backup_time', { ascending: false })
-      .limit(30);
-    if (error) throw error;
-    if (!data || data.length === 0) {
-      info.textContent = 'Tiada rekod sandaran lagi.';
-      return;
-    }
-    info.style.display = 'none';
-    table.style.display = '';
-    tbody.innerHTML = data.map(function(b, i) {
-      var dt = new Date(b.backup_time);
-      var dateStr = b.backup_date;
-      var timeStr = dt.toLocaleTimeString('ms-MY', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-      var jenis = b.triggered_by === 'cron'
-        ? '<span style="color:var(--success);font-weight:700;font-size:11px;">⏰ Automatik</span>'
-        : '<span style="color:var(--primary);font-weight:700;font-size:11px;">👆 Manual</span>';
-      return '<tr>'
-        + '<td class="row-num">' + (i+1) + '</td>'
-        + '<td style="font-weight:700;font-size:12px;">' + dateStr + '</td>'
-        + '<td style="font-size:12px;font-family:var(--mono);">' + timeStr + '</td>'
-        + '<td style="text-align:center;font-family:var(--mono);font-weight:700;color:var(--navy2);">' + (b.total_records||'—') + '</td>'
-        + '<td style="text-align:center;">' + jenis + '</td>'
-        + '<td style="text-align:center;"><button class="btn btn-white btn-xs" onclick="downloadBackupSnapshot(' + b.id + ')">⬇ Muat Turun</button></td>'
-        + '</tr>';
-    }).join('');
-  } catch(e) {
-    info.textContent = '⚠ Gagal muatkan sejarah: ' + e.message;
-    info.style.display = 'block';
-  }
-}
-
-async function triggerManualBackup() {
-  var btn = document.getElementById('manual-backup-btn');
-  if (btn) { btn.textContent = '⏳ Memproses...'; btn.disabled = true; }
-  try {
-    var { data, error } = await supabaseClient.rpc('fn_backup_ahli', { p_triggered_by: 'manual' });
-    if (error) throw error;
-    addLog('Backup manual ke Supabase berjaya');
-    await loadSupabaseBackups();
-    alert('✅ Backup berjaya!
-' + (data ? JSON.stringify(data) : ''));
-  } catch(e) {
-    alert('⚠ Backup gagal: ' + e.message);
-  } finally {
-    if (btn) { btn.textContent = '🔄 Backup Sekarang'; btn.disabled = false; }
-  }
-}
-
-async function downloadBackupSnapshot(backupId) {
-  try {
-    var { data, error } = await supabaseClient
-      .from('BACKUP_AHLI')
-      .select('backup_date, total_records, snapshot')
-      .eq('id', backupId)
-      .single();
-    if (error) throw error;
-    var filename = 'DPMM_Backup_' + data.backup_date + '.json';
-    downloadFile(filename, JSON.stringify(data.snapshot, null, 2), 'application/json');
-    addLog('Muat turun snapshot backup: ' + data.backup_date);
-  } catch(e) {
-    alert('⚠ Gagal muat turun: ' + e.message);
-  }
 }
 
 function renderBackupPage() {
@@ -1971,9 +1770,9 @@ function showPage(id) {
       ta.innerHTML = '<div class="export-wrap" id="export-wrap-' + id + '">'
         + '<button class="btn btn-export btn-sm" onclick="toggleExportMenu(this)">&#x1F4E4;&nbsp;EXPORT &nbsp;&#x25BE;</button>'
         + '<div class="export-menu" style="display:none;">'
-        + '<div class="export-item" onclick="exportCurrentPage(\'' + id + '\',\'sheet\')">&#x1F4CA;&nbsp; Google Sheet (CSV)</div>'
-        + '<div class="export-item" onclick="exportCurrentPage(\'' + id + '\',\'pdf\')">&#x1F4C4;&nbsp; PDF (A4)</div>'
-        + '<div class="export-item" onclick="exportCurrentPage(\'' + id + '\',\'image\')">&#x1F5BC;&nbsp; Image (A4)</div>'
+        + '<div class="export-item" onclick="exportPage(\'' + id + '\',\'sheet\')">&#x1F4CA;&nbsp; Google Sheet (CSV)</div>'
+        + '<div class="export-item" onclick="exportPage(\'' + id + '\',\'pdf\')">&#x1F4C4;&nbsp; PDF (A4)</div>'
+        + '<div class="export-item" onclick="exportPage(\'' + id + '\',\'image\')">&#x1F5BC;&nbsp; Image (A4)</div>'
         + '</div></div>';
     } else if (id === 'dashboard') {
       ta.innerHTML = '<button class="btn btn-primary btn-sm" onclick="showPage(\'followup\')">&#x1F514;&nbsp;FOLLOW UP</button>';
@@ -1981,7 +1780,7 @@ function showPage(id) {
       ta.innerHTML = '';
     }
   }
-  if (id === 'backup') { renderBackupPage(); loadSupabaseBackups(); }
+  if (id === 'backup') renderBackupPage();
   if (id === 'admin') renderAdminPage();
   closeSidebar();
 }
@@ -2523,7 +2322,7 @@ function renderDistrictPage() {
   if (!tables) return;
   tables.innerHTML = districtOrder.map(function(d){
     var mems = districts[d];
-    return '<div class="sec-card" id="dist-' + d.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'') + '" style="margin-bottom:18px;">'
+    return '<div class="sec-card" id="dist-' + d.replace(/\s/g,'_') + '" style="margin-bottom:18px;">'
       + '<div class="sec-head"><h3 style="font-size:13px;">' + d + '<span style="font-weight:400;color:#888;font-size:11px;margin-left:8px;">(' + mems.length + ' ahli)</span></h3></div>'
       + '<div class="sec-body" style="padding:0">'
       + '<table class="data-table"><thead><tr><th>#</th><th>ID</th><th>NAMA</th><th>JAWATAN</th><th>YURAN</th></tr></thead><tbody>'
@@ -2532,7 +2331,7 @@ function renderDistrictPage() {
             + '<td class="row-num">' + (i+1) + '</td>'
             + '<td style="font-size:10px">' + m.id + '</td>'
             + '<td><strong>' + (m.namaSyarikat||'—') + '</strong><br><small style="color:#666">' + (m.namaPIC||'') + '</small></td>'
-            + '<td style="text-align:center"><span style="font-size:10px;font-weight:700;color:var(--navy2);">' + (m.jawatan||'AHLI') + '</span></td>'
+            + '<td style="text-align:center">' + yuranBadge(m.jawatan||'AHLI') + '</td>'
             + '<td style="text-align:center">' + (isPaid(m)?badge('BAYAR','badge-ok'):badge('BELUM','badge-unpaid')) + '</td>'
             + '</tr>';
         }).join('')
@@ -2617,147 +2416,18 @@ function saveMember() {
   closeModal('add-member-modal');
   addLog('Ahli baru ditambah: ' + id);
   updateSidebarCount(); renderAllPages();
-  // Write new member to Supabase
-  var newMember = MEMBERS[MEMBERS.length - 1];
-  supabaseClient.from(TABLE_NAME).insert([{
-    NO_AHLI: newMember.id,
-    JAWATAN: newMember.jawatan,
-    FASAL_AHLI: newMember.fasal,
-    NAMA_AHLI: newMember.namaSyarikat,
-    NAMA: newMember.namaPIC,
-    KAD_PENGENALAN: newMember.ic,
-    NO_HP: newMember.hp,
-    EMEL: newMember.emel,
-    ALAMAT: newMember.alamat,
-    DAERAH: newMember.daerah,
-    JENIS_PERNIAGAAN: newMember.jenis,
-    NO_SSM: newMember.noSSM,
-    SSM_DATELINE: newMember.ssmDeadline,
-    STATUS: newMember.status,
-    YURAN_PENDAFTARAN: newMember.yuranDaftar,
-    YURAN_1_TAHUN: newMember.yuranTahun,
-    JUMLAH_YURAN_TAHUNAN: newMember.jumlahYuranTahunan,
-    JUMLAH_YURAN_KESELURUHAN: newMember.jumlahYuranKeseluruhan,
-    TEMPOH_BAYARAN_YURAN: newMember.tempohBayar,
-    TARIKH_BAYARAN_2025: newMember.tarikhBayar2025,
-    KAEDAH_BAYARAN: newMember.kaedahBayar
-  }]).then(function(res) {
-    if (res.error) { console.error('Supabase insert error:', res.error); }
-    else { console.log('Ahli saved to Supabase:', newMember.id); }
-  });
   alert('Ahli ' + id + ' berjaya ditambah!');
-}
-
-// ── USER LOG MODAL ──────────────────────────────────────
-function openUserLog(uid) {
-  viewingLogUser = uid;
-  var u = null;
-  for (var i=0; i<USERS.length; i++) { if (USERS[i].id === uid) { u = USERS[i]; break; } }
-  var uName = u ? u.name : uid;
-  document.getElementById('user-log-modal-title').textContent = '📋 Log Aktiviti: ' + uName;
-  document.getElementById('user-log-modal-sub').textContent = uid;
-
-  var allLogs = _loadUserLogs();
-  var uLogs = allLogs[uid] || [];
-
-  // ── Stats bar ──
-  var sessions = {};
-  var totalActions = uLogs.length;
-  uLogs.forEach(function(l) { if (l.sessionId) sessions[l.sessionId] = true; });
-  var totalSessions = Object.keys(sessions).length;
-  var lastLogin = '—';
-  for (var k=0; k<uLogs.length; k++) {
-    if (uLogs[k].msg && uLogs[k].msg.indexOf('Log masuk') === 0) { lastLogin = uLogs[k].time; break; }
-  }
-  document.getElementById('user-log-stats').innerHTML =
-    '<div style="flex:1;padding:12px 16px;border-right:1px solid var(--gray1);text-align:center;">'
-    + '<div style="font-size:22px;font-weight:900;font-family:var(--mono);color:var(--primary);">' + totalSessions + '</div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:2px;">Jumlah Sesi</div></div>'
-    + '<div style="flex:1;padding:12px 16px;border-right:1px solid var(--gray1);text-align:center;">'
-    + '<div style="font-size:22px;font-weight:900;font-family:var(--mono);color:var(--navy2);">' + totalActions + '</div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:2px;">Jumlah Aktiviti</div></div>'
-    + '<div style="flex:2;padding:12px 16px;text-align:center;">'
-    + '<div style="font-size:13px;font-weight:700;color:var(--success);">' + lastLogin + '</div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:2px;">Log Masuk Terakhir</div></div>';
-
-  // ── Build session groups to compute durations ──
-  var sessionMap = {};
-  uLogs.forEach(function(l) {
-    var sid = l.sessionId || 'nosession';
-    if (!sessionMap[sid]) sessionMap[sid] = { start: null, end: null, entries: [] };
-    sessionMap[sid].entries.push(l);
-    if (l.msg && l.msg.indexOf('Log masuk') === 0) sessionMap[sid].start = l.ts;
-    if (l.msg && l.msg.indexOf('Log keluar') === 0) sessionMap[sid].end = l.ts;
-  });
-
-  // ── Render table ──
-  var tbody = document.getElementById('user-log-tbody');
-  if (!uLogs.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Tiada log untuk pengguna ini.</td></tr>';
-  } else {
-    tbody.innerHTML = uLogs.map(function(l, i) {
-      var sid = l.sessionId || 'nosession';
-      var sm = sessionMap[sid];
-      var durText = '—';
-      if (sm && sm.start && sm.end) {
-        var mins = Math.round((new Date(sm.end) - new Date(sm.start)) / 60000);
-        durText = mins < 60 ? mins + ' min' : Math.floor(mins/60) + 'j ' + (mins%60) + 'min';
-      } else if (sm && sm.start && !sm.end) {
-        durText = '<span style="color:var(--success);font-size:10px;">Aktif</span>';
-      }
-      // Classify action type
-      var msgLower = (l.msg||'').toLowerCase();
-      var typeTag, typeCls;
-      if (msgLower.indexOf('log masuk') === 0)      { typeTag='🔓 Masuk';   typeCls='color:var(--success);' }
-      else if (msgLower.indexOf('log keluar') === 0) { typeTag='🔒 Keluar';  typeCls='color:var(--crimson);' }
-      else if (msgLower.indexOf('refresh') !== -1)   { typeTag='🔄 Refresh'; typeCls='color:var(--primary);' }
-      else if (msgLower.indexOf('padam') !== -1)     { typeTag='🗑 Padam';   typeCls='color:var(--danger);' }
-      else if (msgLower.indexOf('tambah') !== -1)    { typeTag='➕ Tambah';  typeCls='color:var(--navy2);' }
-      else if (msgLower.indexOf('eksport') !== -1 || msgLower.indexOf('muat turun') !== -1) { typeTag='📤 Eksport'; typeCls='color:#7c3aed;' }
-      else if (msgLower.indexOf('whatsapp') !== -1)  { typeTag='💬 WA';      typeCls='color:#25D366;' }
-      else                                            { typeTag='📝 Lain';   typeCls='color:var(--muted);' }
-
-      return '<tr>'
-        + '<td class="row-num">' + (i+1) + '</td>'
-        + '<td style="font-size:11px;white-space:nowrap;">' + l.time + '</td>'
-        + '<td style="font-size:12px;">' + (l.msg||'—') + '</td>'
-        + '<td style="text-align:center;font-size:11px;font-family:var(--mono);">' + durText + '</td>'
-        + '<td style="text-align:center;font-size:10px;font-weight:700;' + typeCls + '">' + typeTag + '</td>'
-        + '</tr>';
-    }).join('');
-  }
-  document.getElementById('user-log-modal').classList.add('show');
-}
-
-function clearUserLog() {
-  if (!viewingLogUser) return;
-  if (!confirm('Padam semua log untuk pengguna ini?')) return;
-  var allLogs = _loadUserLogs();
-  delete allLogs[viewingLogUser];
-  _saveUserLogs(allLogs);
-  openUserLog(viewingLogUser);
-  renderAdminPage();
 }
 
 function renderAdminPage() {
   var userList = document.getElementById('user-list');
   if (userList) {
     userList.innerHTML = USERS.map(function(u){
-      var allLogs = _loadUserLogs();
-      var uLogs = allLogs[u.id] || [];
-      var lastLogin = '—';
-      for (var k=0; k<uLogs.length; k++) {
-        if (uLogs[k].msg && uLogs[k].msg.indexOf('Log masuk') === 0) { lastLogin = uLogs[k].time; break; }
-      }
-      var totalAct = uLogs.length;
-      return '<div class="user-row" style="cursor:pointer;" onclick="openUserLog(\'' + u.id + '\')">'
+      return '<div class="user-row">'
         + '<div class="user-avatar">' + (u.id[0]||'?').toUpperCase() + '</div>'
-        + '<div style="flex:1;">'
-        + '<div class="user-name">' + u.name + ' <span style="font-size:10px;color:var(--muted);font-weight:400;">— klik untuk lihat log</span></div>'
-        + '<div class="user-role">' + (u.role==='admin'?'🔑 Admin':'👤 Pengguna Biasa') + ' &nbsp;|&nbsp; ' + u.id + '</div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-top:3px;">Log masuk terakhir: <strong>' + lastLogin + '</strong> &nbsp;|&nbsp; Jumlah aktiviti: <strong>' + totalAct + '</strong></div>'
-        + '</div>'
-        + (u.role!=='admin'?'<button class="btn btn-outline-red btn-sm" onclick="event.stopPropagation();removeUser(\'' + u.id + '\')">Padam</button>':'')
+        + '<div style="flex:1;"><div class="user-name">' + u.name + '</div>'
+        + '<div class="user-role">' + (u.role==='admin'?'Admin':'Pengguna Biasa') + ' — ' + u.id + '</div></div>'
+        + (u.role!=='admin'?'<button class="btn btn-outline-red btn-sm" onclick="removeUser(\'' + u.id + '\')">Padam</button>':'')
         + '</div>';
     }).join('');
   }
@@ -2875,149 +2545,6 @@ function exportCurrentPage(fmt) {
   if (fmt === 'csv') exportCSV();
   else if (fmt === 'pdf') exportPDF();
   else if (fmt === 'image') exportImage();
-}
-
-// ── PER-PAGE EXPORT ──────────────────────────────────────
-function togglePageExport(btn, e) {
-  e.stopPropagation();
-  var dd = btn.parentNode.querySelector('.page-export-dd');
-  var isOpen = dd.classList.contains('open');
-  document.querySelectorAll('.page-export-dd').forEach(function(d){ d.classList.remove('open'); });
-  if (!isOpen) dd.classList.add('open');
-}
-document.addEventListener('click', function() {
-  document.querySelectorAll('.page-export-dd').forEach(function(d){ d.classList.remove('open'); });
-});
-
-function pageExport(pageId, fmt) {
-  document.querySelectorAll('.page-export-dd').forEach(function(d){ d.classList.remove('open'); });
-  if (fmt === 'csv') { pageExportCSV(pageId); return; }
-
-  var pageEl = document.getElementById('page-' + pageId);
-  if (!pageEl) { alert('Halaman tidak ditemui.'); return; }
-
-  var pageLabels = {
-    senarai: 'Senarai Ahli Berdaftar',
-    daerah:  'Ahli Mengikut Daerah',
-    yuran:   'Yuran Tracker',
-    ssm:     'SSM Tracker',
-    followup:'Follow Up'
-  };
-  var title = pageLabels[pageId] || pageId.toUpperCase();
-  var datestamp = new Date().toLocaleString('ms-MY');
-
-  if (fmt === 'pdf' || fmt === 'image') {
-    // Inject a temporary print style that shows only this page
-    var styleId = '_dpmm_print_style';
-    var old = document.getElementById(styleId);
-    if (old) old.remove();
-
-    var mediaType = fmt === 'image' ? 'print' : 'print';
-    var printStyle = document.createElement('style');
-    printStyle.id = styleId;
-    printStyle.innerHTML = [
-      '@media print {',
-      '  body > * { display: none !important; }',
-      '  #_dpmm_print_wrapper { display: block !important; }',
-      '  @page { size: A4 portrait; margin: 12mm; }',
-      '  .no-print, .page-export-wrap, button, .modal-overlay { display: none !important; }',
-      '  table { width: 100%; border-collapse: collapse; page-break-inside: auto; }',
-      '  th, td { border: 1px solid #ccc; padding: 4px 7px; font-size: 10px; }',
-      '  thead { background: #1a3f7a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
-      '  .badge { padding: 1px 5px; border-radius: 3px; font-size: 9px; }',
-      '  .kpi-grid { display: grid !important; }',
-      '  .kpi-card { break-inside: avoid; border: 1px solid #ccc; }',
-      '  .district-card { break-inside: avoid; }',
-      '  .sec-card { break-inside: avoid; margin-bottom: 10px; }',
-      '}'
-    ].join('\n');
-    document.head.appendChild(printStyle);
-
-    // Build wrapper div
-    var wrapper = document.getElementById('_dpmm_print_wrapper');
-    if (!wrapper) {
-      wrapper = document.createElement('div');
-      wrapper.id = '_dpmm_print_wrapper';
-      wrapper.style.cssText = 'display:none;';
-      document.body.appendChild(wrapper);
-    }
-    wrapper.innerHTML =
-      '<div style="font-family:sans-serif;margin-bottom:10px;">'
-      + '<h2 style="color:#1a3f7a;font-size:16px;margin:0;">DPMM Negeri Johor — ' + title + '</h2>'
-      + '<p style="color:#888;font-size:10px;margin-top:3px;">Dijana: ' + datestamp + '</p>'
-      + '</div>'
-      + pageEl.innerHTML;
-
-    window.print();
-
-    // Cleanup after print dialog closes
-    setTimeout(function() {
-      printStyle.remove();
-      wrapper.innerHTML = '';
-    }, 2000);
-
-    addLog('Eksport ' + (fmt === 'pdf' ? 'PDF' : 'Imej') + ': ' + pageId);
-    return;
-  }
-}
-
-
-function pageExportCSV(pageId) {
-  var rows = [], headers, filename;
-  filename = 'DPMM_' + pageId + '_' + new Date().toISOString().slice(0,10) + '.csv';
-
-  if (pageId === 'senarai') {
-    headers = ['No.Ahli','Jawatan','Nama Syarikat','Nama PIC','No.HP','Emel','Daerah','Fasal','Status','Yuran 2025'];
-    rows = [headers];
-    filteredMembers.forEach(function(m) {
-      rows.push([m.id, m.jawatan, m.namaSyarikat, m.namaPIC, m.hp, m.emel, m.daerah, m.fasal, m.status, isPaid(m)?'BAYAR':'BELUM'].map(function(v){ return '"'+(v||'').toString().replace(/"/g,'""')+'"'; }));
-    });
-  } else if (pageId === 'daerah') {
-    headers = ['Daerah','No.Ahli','Jawatan','Nama Syarikat','Nama PIC','No.HP','Yuran 2025'];
-    rows = [headers];
-    districtOrder.forEach(function(d) {
-      districts[d].forEach(function(m) {
-        rows.push([d, m.id, m.jawatan, m.namaSyarikat, m.namaPIC, m.hp, isPaid(m)?'BAYAR':'BELUM'].map(function(v){ return '"'+(v||'').toString().replace(/"/g,'""')+'"'; }));
-      });
-    });
-  } else if (pageId === 'yuran') {
-    headers = ['No.Ahli','Nama Syarikat','Nama PIC','Daerah','Fasal','Status Yuran 2025','Tarikh Bayar','Kaedah Bayar','Jumlah Yuran Keseluruhan'];
-    rows = [headers];
-    MEMBERS.forEach(function(m) {
-      rows.push([m.id, m.namaSyarikat, m.namaPIC, m.daerah, m.fasal, isPaid(m)?'BAYAR':'BELUM', m.tarikhBayar2025||'—', m.kaedahBayar||'—', m.jumlahYuranKeseluruhan||0].map(function(v){ return '"'+(v||'').toString().replace(/"/g,'""')+'"'; }));
-    });
-  } else if (pageId === 'ssm') {
-    headers = ['No.Ahli','Nama Syarikat','Nama PIC','No.HP','Daerah','No.SSM','Tarikh Luput SSM','Status SSM'];
-    rows = [headers];
-    MEMBERS.forEach(function(m) {
-      var stat = m.noSSM ? ssmStatus(m.ssmDeadline) : 'Tiada';
-      rows.push([m.id, m.namaSyarikat, m.namaPIC, m.hp, m.daerah, m.noSSM||'—', m.ssmDeadline||'—', stat].map(function(v){ return '"'+(v||'').toString().replace(/"/g,'""')+'"'; }));
-    });
-  } else if (pageId === 'followup') {
-    headers = ['No.Ahli','Nama Syarikat','Nama PIC','No.HP','Daerah','Isu'];
-    rows = [headers];
-    MEMBERS.forEach(function(m) {
-      var issues = [];
-      if (!isPaid(m)) issues.push('Yuran Belum Bayar');
-      var ss = ssmStatus(m.ssmDeadline);
-      if (ss === 'expired' || ss === 'expiring') issues.push('SSM ' + (ss==='expired'?'Luput':'Hampir Luput'));
-      var inc = getIncomplete(m);
-      if (inc.length) issues.push('Data Tidak Lengkap: ' + inc.join(', '));
-      if (issues.length) {
-        rows.push([m.id, m.namaSyarikat, m.namaPIC, m.hp, m.daerah, issues.join(' | ')].map(function(v){ return '"'+(v||'').toString().replace(/"/g,'""')+'"'; }));
-      }
-    });
-  }
-
-  if (rows.length > 1) {
-    // Add BOM for Excel UTF-8
-    var bom = '﻿';
-    downloadFile(filename, bom + rows.map(function(r){ return r.join(','); }).join('
-'), 'text/csv;charset=utf-8');
-    addLog('Eksport CSV: ' + pageId);
-  } else {
-    alert('Tiada data untuk dieksport.');
-  }
 }
 
 /* ── CSV (Google Sheets) ── */
