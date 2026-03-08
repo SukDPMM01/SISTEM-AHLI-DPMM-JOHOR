@@ -409,12 +409,14 @@ input, select, textarea, button { font-family: var(--sans); }
   box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
   transition: box-shadow .2s, transform .2s;
   text-align: center;
+  isolation: isolate;
 }
 .kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .kpi-card::before {
   content: ''; position: absolute; top: 0; right: 0;
   width: 80px; height: 80px; border-radius: 0 var(--radius-lg) 0 80px;
   background: var(--primary-lt); opacity: 0.7;
+  z-index: 0;
 }
 .kpi-card.danger::before { background: var(--danger-lt); }
 .kpi-card.gold::before { background: var(--warning-lt); }
@@ -2891,70 +2893,74 @@ function pageExport(pageId, fmt) {
   document.querySelectorAll('.page-export-dd').forEach(function(d){ d.classList.remove('open'); });
   if (fmt === 'csv') { pageExportCSV(pageId); return; }
 
-  // For PDF and Image — print the specific page div as A4
   var pageEl = document.getElementById('page-' + pageId);
-  if (!pageEl) return;
+  if (!pageEl) { alert('Halaman tidak ditemui.'); return; }
 
-  if (fmt === 'pdf') {
-    var printWin = window.open('', '_blank', 'width=900,height=700');
-    var styles = Array.from(document.querySelectorAll('style,link[rel="stylesheet"]'))
-      .map(function(s){ return s.outerHTML; }).join('');
-    printWin.document.write(
-      '<!DOCTYPE html><html><head><meta charset="UTF-8">'
-      + '<title>DPMM Johor — ' + pageId.toUpperCase() + '</title>'
-      + styles
-      + '<style>'
-      + '@page { size: A4 portrait; margin: 15mm; }'
-      + 'body { font-size: 12px; }'
-      + '.no-print, .topbar, .sidebar, .login-screen, button { display: none !important; }'
-      + '.page { display: block !important; padding: 0 !important; }'
-      + '.kpi-grid { display: grid !important; }'
-      + 'table { width: 100%; border-collapse: collapse; }'
-      + 'th, td { border: 1px solid #ddd; padding: 5px 7px; font-size: 11px; }'
-      + 'thead { background: #1a3f7a; color: #fff; }'
-      + '.badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; }'
-      + '.page-export-wrap { display: none !important; }'
-      + '</style>'
-      + '</head><body>'
-      + '<h2 style="font-family:sans-serif;color:#1a3f7a;margin-bottom:12px;">DPMM Negeri Johor — ' + pageId.toUpperCase() + '</h2>'
-      + '<p style="font-family:sans-serif;font-size:11px;color:#888;margin-bottom:16px;">Dijana: ' + new Date().toLocaleString('ms-MY') + '</p>'
-      + pageEl.innerHTML
-      + '</body></html>'
-    );
-    printWin.document.close();
-    setTimeout(function() { printWin.print(); }, 600);
-    addLog('Eksport PDF: ' + pageId);
-    return;
-  }
+  var pageLabels = {
+    senarai: 'Senarai Ahli Berdaftar',
+    daerah:  'Ahli Mengikut Daerah',
+    yuran:   'Yuran Tracker',
+    ssm:     'SSM Tracker',
+    followup:'Follow Up'
+  };
+  var title = pageLabels[pageId] || pageId.toUpperCase();
+  var datestamp = new Date().toLocaleString('ms-MY');
 
-  if (fmt === 'image') {
-    // Use html2canvas if available, else fallback to print
-    if (typeof html2canvas !== 'undefined') {
-      html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#f5f6fa' }).then(function(canvas) {
-        var a4w = 794, a4h = 1123;
-        var finalCanvas = document.createElement('canvas');
-        finalCanvas.width = a4w; finalCanvas.height = a4h;
-        var ctx = finalCanvas.getContext('2d');
-        ctx.fillStyle = '#f5f6fa';
-        ctx.fillRect(0, 0, a4w, a4h);
-        var scale = Math.min(a4w / canvas.width, a4h / canvas.height);
-        ctx.drawImage(canvas, 0, 0, canvas.width * scale, canvas.height * scale);
-        var link = document.createElement('a');
-        link.download = 'DPMM_' + pageId + '_' + new Date().toISOString().slice(0,10) + '.png';
-        link.href = finalCanvas.toDataURL('image/png');
-        link.click();
-      });
-    } else {
-      // Load html2canvas dynamically then retry
-      var script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      script.onload = function() { pageExport(pageId, 'image'); };
-      document.head.appendChild(script);
+  if (fmt === 'pdf' || fmt === 'image') {
+    // Inject a temporary print style that shows only this page
+    var styleId = '_dpmm_print_style';
+    var old = document.getElementById(styleId);
+    if (old) old.remove();
+
+    var mediaType = fmt === 'image' ? 'print' : 'print';
+    var printStyle = document.createElement('style');
+    printStyle.id = styleId;
+    printStyle.innerHTML = [
+      '@media print {',
+      '  body > * { display: none !important; }',
+      '  #_dpmm_print_wrapper { display: block !important; }',
+      '  @page { size: A4 portrait; margin: 12mm; }',
+      '  .no-print, .page-export-wrap, button, .modal-overlay { display: none !important; }',
+      '  table { width: 100%; border-collapse: collapse; page-break-inside: auto; }',
+      '  th, td { border: 1px solid #ccc; padding: 4px 7px; font-size: 10px; }',
+      '  thead { background: #1a3f7a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+      '  .badge { padding: 1px 5px; border-radius: 3px; font-size: 9px; }',
+      '  .kpi-grid { display: grid !important; }',
+      '  .kpi-card { break-inside: avoid; border: 1px solid #ccc; }',
+      '  .district-card { break-inside: avoid; }',
+      '  .sec-card { break-inside: avoid; margin-bottom: 10px; }',
+      '}'
+    ].join('\n');
+    document.head.appendChild(printStyle);
+
+    // Build wrapper div
+    var wrapper = document.getElementById('_dpmm_print_wrapper');
+    if (!wrapper) {
+      wrapper = document.createElement('div');
+      wrapper.id = '_dpmm_print_wrapper';
+      wrapper.style.cssText = 'display:none;';
+      document.body.appendChild(wrapper);
     }
-    addLog('Eksport Imej: ' + pageId);
+    wrapper.innerHTML =
+      '<div style="font-family:sans-serif;margin-bottom:10px;">'
+      + '<h2 style="color:#1a3f7a;font-size:16px;margin:0;">DPMM Negeri Johor — ' + title + '</h2>'
+      + '<p style="color:#888;font-size:10px;margin-top:3px;">Dijana: ' + datestamp + '</p>'
+      + '</div>'
+      + pageEl.innerHTML;
+
+    window.print();
+
+    // Cleanup after print dialog closes
+    setTimeout(function() {
+      printStyle.remove();
+      wrapper.innerHTML = '';
+    }, 2000);
+
+    addLog('Eksport ' + (fmt === 'pdf' ? 'PDF' : 'Imej') + ': ' + pageId);
     return;
   }
 }
+
 
 function pageExportCSV(pageId) {
   var rows = [], headers, filename;
