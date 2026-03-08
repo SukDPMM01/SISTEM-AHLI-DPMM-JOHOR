@@ -1770,9 +1770,9 @@ function showPage(id) {
       ta.innerHTML = '<div class="export-wrap" id="export-wrap-' + id + '">'
         + '<button class="btn btn-export btn-sm" onclick="toggleExportMenu(this)">&#x1F4E4;&nbsp;EXPORT &nbsp;&#x25BE;</button>'
         + '<div class="export-menu" style="display:none;">'
-        + '<div class="export-item" onclick="exportPage(\'' + id + '\',\'sheet\')">&#x1F4CA;&nbsp; Google Sheet (CSV)</div>'
-        + '<div class="export-item" onclick="exportPage(\'' + id + '\',\'pdf\')">&#x1F4C4;&nbsp; PDF (A4)</div>'
-        + '<div class="export-item" onclick="exportPage(\'' + id + '\',\'image\')">&#x1F5BC;&nbsp; Image (A4)</div>'
+        + '<div class="export-item" onclick="exportCurrentPage(\'' + id + '\',\'sheet\')">&#x1F4CA;&nbsp; Google Sheet (CSV)</div>'
+        + '<div class="export-item" onclick="exportCurrentPage(\'' + id + '\',\'pdf\')">&#x1F4C4;&nbsp; PDF (A4)</div>'
+        + '<div class="export-item" onclick="exportCurrentPage(\'' + id + '\',\'image\')">&#x1F5BC;&nbsp; Image (A4)</div>'
         + '</div></div>';
     } else if (id === 'dashboard') {
       ta.innerHTML = '<button class="btn btn-primary btn-sm" onclick="showPage(\'followup\')">&#x1F514;&nbsp;FOLLOW UP</button>';
@@ -2322,7 +2322,7 @@ function renderDistrictPage() {
   if (!tables) return;
   tables.innerHTML = districtOrder.map(function(d){
     var mems = districts[d];
-    return '<div class="sec-card" id="dist-' + d.replace(/\s/g,'_') + '" style="margin-bottom:18px;">'
+    return '<div class="sec-card" id="dist-' + d.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'') + '" style="margin-bottom:18px;">'
       + '<div class="sec-head"><h3 style="font-size:13px;">' + d + '<span style="font-weight:400;color:#888;font-size:11px;margin-left:8px;">(' + mems.length + ' ahli)</span></h3></div>'
       + '<div class="sec-body" style="padding:0">'
       + '<table class="data-table"><thead><tr><th>#</th><th>ID</th><th>NAMA</th><th>JAWATAN</th><th>YURAN</th></tr></thead><tbody>'
@@ -2331,7 +2331,7 @@ function renderDistrictPage() {
             + '<td class="row-num">' + (i+1) + '</td>'
             + '<td style="font-size:10px">' + m.id + '</td>'
             + '<td><strong>' + (m.namaSyarikat||'—') + '</strong><br><small style="color:#666">' + (m.namaPIC||'') + '</small></td>'
-            + '<td style="text-align:center">' + yuranBadge(m.jawatan||'AHLI') + '</td>'
+            + '<td style="text-align:center"><span style="font-size:10px;font-weight:700;color:var(--navy2);">' + (m.jawatan||'AHLI') + '</span></td>'
             + '<td style="text-align:center">' + (isPaid(m)?badge('BAYAR','badge-ok'):badge('BELUM','badge-unpaid')) + '</td>'
             + '</tr>';
         }).join('')
@@ -2416,6 +2416,34 @@ function saveMember() {
   closeModal('add-member-modal');
   addLog('Ahli baru ditambah: ' + id);
   updateSidebarCount(); renderAllPages();
+  // Write new member to Supabase
+  var newMember = MEMBERS[MEMBERS.length - 1];
+  supabaseClient.from(TABLE_NAME).insert([{
+    NO_AHLI: newMember.id,
+    JAWATAN: newMember.jawatan,
+    FASAL_AHLI: newMember.fasal,
+    NAMA_AHLI: newMember.namaSyarikat,
+    NAMA: newMember.namaPIC,
+    KAD_PENGENALAN: newMember.ic,
+    NO_HP: newMember.hp,
+    EMEL: newMember.emel,
+    ALAMAT: newMember.alamat,
+    DAERAH: newMember.daerah,
+    JENIS_PERNIAGAAN: newMember.jenis,
+    NO_SSM: newMember.noSSM,
+    SSM_DATELINE: newMember.ssmDeadline,
+    STATUS: newMember.status,
+    YURAN_PENDAFTARAN: newMember.yuranDaftar,
+    YURAN_1_TAHUN: newMember.yuranTahun,
+    JUMLAH_YURAN_TAHUNAN: newMember.jumlahYuranTahunan,
+    JUMLAH_YURAN_KESELURUHAN: newMember.jumlahYuranKeseluruhan,
+    TEMPOH_BAYARAN_YURAN: newMember.tempohBayar,
+    TARIKH_BAYARAN_2025: newMember.tarikhBayar2025,
+    KAEDAH_BAYARAN: newMember.kaedahBayar
+  }]).then(function(res) {
+    if (res.error) { console.error('Supabase insert error:', res.error); }
+    else { console.log('Ahli saved to Supabase:', newMember.id); }
+  });
   alert('Ahli ' + id + ' berjaya ditambah!');
 }
 
