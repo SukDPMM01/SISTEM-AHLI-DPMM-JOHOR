@@ -495,22 +495,6 @@ input, select, textarea, button { font-family: var(--sans); }
   font-family: var(--head); font-size: 13px; font-weight: 700; color: var(--text);
   letter-spacing: 0.3px;
 }
-/* Dashboard-style section headers — match topbar gradient, smaller font */
-.dash-sec-head {
-  background: linear-gradient(135deg, #6C5CE7 0%, #8B7CF0 50%, #5549D4 100%) !important;
-  border-bottom: none !important;
-  padding: 10px 16px !important;
-  box-shadow: 0 2px 8px rgba(108,92,231,.25);
-}
-.dash-sec-head h3 {
-  font-family: var(--head) !important;
-  font-size: 12px !important;
-  font-weight: 900 !important;
-  color: #ffffff !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.8px !important;
-  text-shadow: 0 1px 3px rgba(0,0,0,.2);
-}
 .sec-head .sec-count { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
 .sec-body { padding: 18px; }
 
@@ -1030,23 +1014,19 @@ tr.row-unpaid { background: #fff0f0 !important; }
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1.15fr 0.65fr 0.9fr;gap:14px;margin-bottom:14px;">
-      <div class="sec-card" style="overflow:hidden;">
-        <div class="sec-head dash-sec-head"><h3>&#x1F4CA; Statistik Ahli</h3></div>
-        <div class="sec-body" style="padding:12px 16px;" id="dash-stats"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+      <div class="sec-card">
+        <div class="sec-head" style="background:linear-gradient(90deg,var(--primary-lt),transparent);border-left:4px solid var(--primary);"><h3 style="color:var(--primary);font-size:14px;font-weight:900;">&#x1F4CA; Statistik Ahli</h3></div>
+        <div class="sec-body" id="dash-stats"></div>
       </div>
-      <div class="sec-card" style="overflow:hidden;">
-        <div class="sec-head dash-sec-head"><h3>&#x1F5FA; Ahli Mengikut Daerah</h3></div>
-        <div class="sec-body" style="padding:4px 10px;" id="district-summary-mini"></div>
-      </div>
-      <div class="sec-card" style="overflow:hidden;">
-        <div class="sec-head dash-sec-head"><h3>&#x1F3EA; Jenis Perniagaan</h3></div>
-        <div class="sec-body" style="padding:12px 16px;" id="dash-jenis"></div>
+      <div class="sec-card">
+        <div class="sec-head" style="background:linear-gradient(90deg,var(--info-lt),transparent);border-left:4px solid var(--info);"><h3 style="color:var(--info);font-size:14px;font-weight:900;">&#x1F5FA; Ahli Mengikut Daerah</h3></div>
+        <div class="sec-body" style="padding:6px 14px;" id="district-summary-mini"></div>
       </div>
     </div>
 
-    <div class="sec-card" style="margin-bottom:14px;overflow:hidden;">
-      <div class="sec-head dash-sec-head" style="background:linear-gradient(135deg,#FF6B6B 0%,#ff8585 50%,#e85555 100%) !important;"><h3>&#x26A0; Tindakan Segera Diperlukan</h3></div>
+    <div class="sec-card" style="margin-bottom:18px;">
+      <div class="sec-head" style="background:linear-gradient(90deg,var(--danger-lt),transparent);border-left:4px solid var(--danger);"><h3 style="color:var(--danger);font-size:14px;font-weight:900;">&#x26A0; Tindakan Segera Diperlukan</h3></div>
       <div class="sec-body" id="dash-alerts"></div>
     </div>
 
@@ -2435,9 +2415,9 @@ function renderDashboard() {
     + statRow('Wanita', female, fPct, 'var(--info)')
     + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 0 10px;">Jenis Ahli</div>'
     + statRow('Enterpris (ENT)', ent, ePct, 'var(--primary)')
-    + statRow('Sdn Bhd (SB)', sb, sPct, 'var(--success)');
-
-  var jenisHtml = statCount('Perdagangan', jTRAD, 'var(--primary)')
+    + statRow('Sdn Bhd (SB)', sb, sPct, 'var(--success)')
+    + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 0 10px;">Jenis Perniagaan</div>'
+    + statCount('Perdagangan', jTRAD, 'var(--primary)')
     + statCount('F&B', jFB, 'var(--warning)')
     + statCount('Pembinaan', jCONST, 'var(--success)')
     + statCount('Produk & Servis', jPS, 'var(--info)')
@@ -2445,8 +2425,6 @@ function renderDashboard() {
 
   var dashStats = document.getElementById('dash-stats');
   if (dashStats) dashStats.innerHTML = statsHtml;
-  var dashJenis = document.getElementById('dash-jenis');
-  if (dashJenis) dashJenis.innerHTML = jenisHtml;
 
   // Yuran progress bar
   var yb = document.getElementById('yuran-progress-bar'); if(yb) yb.style.width=pct+'%';
@@ -2717,9 +2695,9 @@ function renderDistrictMini() {
   div.innerHTML = ordered.map(function(d) {
     var mems = districts[d];
     var isUnknown = d === 'Tidak Diketahui';
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid var(--gray1);gap:6px;">'
-      + '<span style="font-size:11.5px;font-weight:700;color:' + (isUnknown ? 'var(--danger)' : 'var(--text)') + ';flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + d + '</span>'
-      + '<span style="font-family:var(--mono);font-weight:900;font-size:13px;color:' + (isUnknown ? 'var(--danger)' : 'var(--primary)') + ';flex-shrink:0;">' + mems.length + '</span>'
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--gray1);">'
+      + '<span style="font-size:12.5px;font-weight:700;color:' + (isUnknown ? 'var(--danger)' : 'var(--text)') + ';">' + d + '</span>'
+      + '<span style="font-family:var(--mono);font-weight:900;font-size:13px;color:' + (isUnknown ? 'var(--danger)' : 'var(--primary)') + ';">' + mems.length + '</span>'
       + '</div>';
   }).join('');
 }
@@ -3066,6 +3044,7 @@ function generateReport() {
   var jCONST = MEMBERS.filter(function(m){ return m.jenis === 'CONST'; }).length;
   var jPS    = MEMBERS.filter(function(m){ return m.jenis === 'P&S'; }).length;
   var jOTH   = MEMBERS.filter(function(m){ return m.jenis === 'OTH' || m.jenis === 'COSM'; }).length;
+  var jNone  = total - jTRAD - jFB - jCONST - jPS - jOTH;
   var ssmExp      = MEMBERS.filter(function(m){ return ssmStatus(m.ssmDeadline) === 'expired'; }).length;
   var ssmExpiring = MEMBERS.filter(function(m){ return ssmStatus(m.ssmDeadline) === 'expiring'; }).length;
 
@@ -3092,92 +3071,116 @@ function generateReport() {
   });
 
   function p(n, d) { return d ? Math.round(n/d*100) : 0; }
-  function sline(label, val) {
-    return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted #ddd;font-size:10px;">'
-      + '<span style="color:#444;">' + label + '</span>'
-      + '<span style="font-weight:700;font-family:monospace;color:#1a1a2e;">' + val + '</span></div>';
+
+  // ── Section 1: Statistik — 4-column layout ──
+  function sline(label, val, bold) {
+    return '<div class="sline"><span class="lbl">' + label + '</span><span class="val' + (bold?' bld':'') + '">' + val + '</span></div>';
   }
 
-  // district table: two columns side-by-side
-  var distTable = '<table style="width:100%;border-collapse:collapse;font-size:9.5px;"><thead><tr>'
-    + '<th style="width:27%;">Daerah</th><th style="width:5%;text-align:center;">Ahli</th><th style="width:5%;text-align:center;">Bayar</th><th style="width:5%;text-align:center;">Belum</th><th style="width:5%;text-align:center;">%</th>'
-    + '<th style="width:3%;background:#fff;border:none;"></th>'
-    + '<th style="width:27%;">Daerah</th><th style="width:5%;text-align:center;">Ahli</th><th style="width:5%;text-align:center;">Bayar</th><th style="width:5%;text-align:center;">Belum</th><th style="width:5%;text-align:center;">%</th>'
+  // ── Section 2: District table — 3 columns side-by-side ──
+  var distTable = '<table style="width:100%;border-collapse:collapse;"><thead><tr>'
+    + '<th style="width:22%;">Daerah</th><th style="width:5%;text-align:center;">Ahli</th><th style="width:4%;text-align:center;">Bayar</th><th style="width:4%;text-align:center;">Belum</th><th style="width:4%;text-align:center;">%</th>'
+    + '<th style="width:2%;background:#fff;border:none;"></th>'
+    + '<th style="width:22%;">Daerah</th><th style="width:5%;text-align:center;">Ahli</th><th style="width:4%;text-align:center;">Bayar</th><th style="width:4%;text-align:center;">Belum</th><th style="width:4%;text-align:center;">%</th>'
+    + '<th style="width:2%;background:#fff;border:none;"></th>'
+    + '<th style="width:22%;">Daerah</th><th style="width:5%;text-align:center;">Ahli</th><th style="width:4%;text-align:center;">Bayar</th><th style="width:4%;text-align:center;">Belum</th><th style="width:4%;text-align:center;">%</th>'
     + '</tr></thead><tbody>';
-  for (var di = 0; di < orderedDists.length; di += 2) {
-    var rowBg = (Math.floor(di/2) % 2 === 0) ? ' style="background:#f5f5f5;"' : '';
-    function dcell(d) {
+  for (var di = 0; di < orderedDists.length; di += 3) {
+    var rowBg = (Math.floor(di/3) % 2 === 0) ? ' style="background:#f5f5f5;"' : '';
+    function dcell3(d) {
       if (!d || !districts[d]) return '<td></td><td></td><td></td><td></td><td></td>';
       var ms = districts[d]; var un = ms.filter(function(m){ return !isPaid(m); }).length;
       var pd2 = ms.length - un; var pp = p(pd2, ms.length);
       var isUnk = d === 'Tidak Diketahui';
       return '<td style="font-weight:600;' + (isUnk ? 'color:#888;font-style:italic;' : '') + '">' + d + '</td>'
         + '<td style="text-align:center;font-weight:700;">' + ms.length + '</td>'
-        + '<td style="text-align:center;">' + pd2 + '</td>'
-        + '<td style="text-align:center;' + (un > 0 ? 'font-weight:700;' : '') + '">' + un + '</td>'
+        + '<td style="text-align:center;color:#00875a;">' + pd2 + '</td>'
+        + '<td style="text-align:center;' + (un > 0 ? 'font-weight:700;color:#c0392b;' : '') + '">' + un + '</td>'
         + '<td style="text-align:center;">' + pp + '%</td>';
     }
-    distTable += '<tr' + rowBg + '>' + dcell(orderedDists[di]) + '<td style="background:#fff;border:none;"></td>' + dcell(orderedDists[di + 1]) + '</tr>';
+    distTable += '<tr' + rowBg + '>'
+      + dcell3(orderedDists[di])
+      + '<td style="background:#fff;border:none;"></td>'
+      + dcell3(orderedDists[di + 1])
+      + '<td style="background:#fff;border:none;"></td>'
+      + dcell3(orderedDists[di + 2])
+      + '</tr>';
   }
   distTable += '</tbody></table>';
 
+  // ── Section 3: Fasal rows ──
   var fasalRows = Object.keys(fasalGroups).sort().map(function(f, i){
     var g = fasalGroups[f]; var collected = g.paid * g.rate; var pp2 = p(g.paid, g.total);
     return '<tr' + (i%2===0 ? ' style="background:#f5f5f5;"' : '') + '>'
       + '<td>' + f + '</td><td style="text-align:center;">' + g.total + '</td>'
-      + '<td style="text-align:center;">' + g.paid + '</td>'
-      + '<td style="text-align:center;' + (g.total-g.paid>0 ? 'font-weight:700;' : '') + '">' + (g.total-g.paid) + '</td>'
+      + '<td style="text-align:center;color:#00875a;font-weight:700;">' + g.paid + '</td>'
+      + '<td style="text-align:center;' + (g.total-g.paid>0 ? 'font-weight:700;color:#c0392b;' : '') + '">' + (g.total-g.paid) + '</td>'
       + '<td style="text-align:center;">' + pp2 + '%</td>'
       + '<td style="text-align:right;">RM ' + g.rate + '</td>'
       + '<td style="text-align:right;font-weight:700;">RM ' + collected.toLocaleString() + '</td></tr>';
   }).join('');
 
-  var unpaidRows = unpaidM.map(function(m, i){
-    return '<tr' + (i%2===0 ? ' style="background:#f5f5f5;"' : '') + '>'
-      + '<td style="text-align:center;width:18px;">' + (i+1) + '</td>'
-      + '<td style="font-family:monospace;white-space:nowrap;">' + m.id + '</td>'
-      + '<td style="font-weight:600;">' + (m.namaSyarikat || '—') + '</td>'
-      + '<td>' + (m.namaPIC || '—') + '</td>'
-      + '<td>' + (m.daerah || '—') + '</td>'
-      + '<td style="font-family:monospace;text-align:right;font-weight:700;">RM ' + getYuranTahunan(m.fasal) + '</td>'
-      + '<td style="font-family:monospace;white-space:nowrap;">' + (m.hp || '—') + '</td></tr>';
-  }).join('');
+  // ── Section 4: Unpaid — 2 COLUMNS side-by-side ──
+  var half = Math.ceil(unpaidM.length / 2);
+  var leftList  = unpaidM.slice(0, half);
+  var rightList = unpaidM.slice(half);
+  function unpaidMiniRows(arr, offset) {
+    return arr.map(function(m, i) {
+      return '<tr' + (i%2===0 ? ' style="background:#f5f5f5;"' : '') + '>'
+        + '<td style="text-align:center;width:16px;color:#777;">' + (offset + i + 1) + '</td>'
+        + '<td style="font-family:monospace;font-size:9px;white-space:nowrap;color:#1a3f7a;font-weight:700;">' + m.id + '</td>'
+        + '<td style="font-weight:600;">' + (m.namaSyarikat || '—') + '</td>'
+        + '<td style="font-size:9px;color:#555;">' + (m.daerah || '—') + '</td>'
+        + '<td style="font-family:monospace;font-weight:800;color:#c0392b;text-align:right;white-space:nowrap;">RM ' + getYuranTahunan(m.fasal) + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+  var unpaidColHead = '<thead><tr><th style="width:16px;">#</th><th>No. Ahli</th><th>Nama Syarikat</th><th>Daerah</th><th style="text-align:right;">Yuran</th></tr></thead>';
+  var unpaid2col = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 10px;">'
+    + '<table>' + unpaidColHead + '<tbody>' + unpaidMiniRows(leftList, 0) + '</tbody></table>'
+    + '<table>' + unpaidColHead + '<tbody>' + unpaidMiniRows(rightList, half) + '</tbody></table>'
+    + '</div>';
 
+  // ── Section 5: SSM rows ──
   var ssmRows = ssmList.map(function(m, i){
     var st = ssmStatus(m.ssmDeadline); var isExp = st === 'expired';
     return '<tr' + (i%2===0 ? ' style="background:#f5f5f5;"' : '') + '>'
       + '<td style="text-align:center;width:18px;">' + (i+1) + '</td>'
       + '<td style="font-weight:600;">' + (m.namaSyarikat || '—') + '</td>'
-      + '<td>' + (m.namaPIC || '—') + '</td>'
+      + '<td style="font-size:9px;">' + (m.namaPIC || '—') + '</td>'
       + '<td style="font-family:monospace;white-space:nowrap;">' + (m.noSSM || '—') + '</td>'
       + '<td style="font-family:monospace;white-space:nowrap;">' + (m.ssmDeadline || '—') + '</td>'
       + '<td style="font-weight:700;' + (isExp ? 'color:#c0392b;' : 'color:#a0620a;') + '">' + (isExp ? 'LUPUT' : 'HAMPIR LUPUT') + '</td></tr>';
   }).join('');
 
-  var css = '@page{size:A4 portrait;margin:10mm 12mm 9mm}'
+  // ══ CSS ══
+  var css = '@page{size:A4 portrait;margin:9mm 11mm 9mm}'
     + '*{box-sizing:border-box;margin:0;padding:0}'
-    + 'body{font-family:"Segoe UI",Arial,sans-serif;font-size:10.5px;color:#1a1a2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;line-height:1.4}'
+    + 'body{font-family:"Segoe UI",Arial,sans-serif;font-size:11.5px;color:#1a1a2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;line-height:1.45}'
     + 'table{width:100%;border-collapse:collapse}'
-    + 'th{background:#1a3f7a;color:#fff;padding:5px 7px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}'
-    + 'td{padding:4px 7px;border-bottom:1px solid #e5e5e5;vertical-align:middle;font-size:9.5px}'
-    + 'h2{font-size:10.5px;font-weight:700;color:#1a3f7a;border-bottom:1.5px solid #1a3f7a;padding-bottom:3px;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.6px}'
-    + '.sec{margin-bottom:6px;page-break-inside:avoid}'
-    + '.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}'
-    + '.sline{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted #e0e0e0;font-size:9.5px}'
+    + 'th{background:#1a3f7a;color:#fff;padding:5px 6px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.4px;font-weight:700}'
+    + 'td{padding:3.5px 6px;border-bottom:1px solid #e5e5e5;vertical-align:middle;font-size:10.5px}'
+    + 'h2{font-size:11.5px;font-weight:700;color:#fff;background:#1a3f7a;padding:4px 8px;margin:7px 0 4px;text-transform:uppercase;letter-spacing:.6px;border-radius:2px}'
+    + '.sec{margin-bottom:7px;page-break-inside:avoid}'
+    + '.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:0 14px}'
+    + '.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}'
+    + '.col-hd{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#1a3f7a;margin-bottom:4px;padding-bottom:2px;border-bottom:1.5px solid #1a3f7a}'
+    + '.sline{display:flex;justify-content:space-between;padding:2.5px 0;border-bottom:1px dotted #e0e0e0;font-size:10.5px}'
     + '.sline .lbl{color:#444}'
-    + '.sline .val{font-weight:700;font-family:monospace}'
-    + '.lhd{border-bottom:2px solid #1a3f7a;padding-bottom:5px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-end}'
-    + '.lhd-l h1{font-size:14px;font-weight:900;color:#1a3f7a;letter-spacing:.3px}'
-    + '.lhd-l p{font-size:9px;color:#666;margin-top:1px}'
-    + '.lhd-r{text-align:right;font-size:9px;color:#666;line-height:1.5}'
-    + '.lhd-r strong{font-size:9.5px;color:#1a1a2e}'
-    + '.smry{width:100%;border-collapse:collapse;margin-bottom:6px;border:1px solid #ccc}'
-    + '.smry td{padding:6px 9px;border-right:1px solid #ddd;vertical-align:top;width:20%}'
+    + '.sline .val{font-weight:700;font-family:monospace;color:#1a1a2e}'
+    + '.sline .val.bld{color:#1a3f7a}'
+    + '.lhd{border-bottom:2.5px solid #1a3f7a;padding-bottom:5px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:flex-end}'
+    + '.lhd-l h1{font-size:15px;font-weight:900;color:#1a3f7a;letter-spacing:.3px}'
+    + '.lhd-l p{font-size:10px;color:#666;margin-top:2px}'
+    + '.lhd-r{text-align:right;font-size:9.5px;color:#666;line-height:1.6}'
+    + '.lhd-r strong{font-size:10px;color:#1a1a2e}'
+    + '.smry{width:100%;border-collapse:collapse;margin-bottom:7px;border:1.5px solid #1a3f7a}'
+    + '.smry td{padding:7px 10px;border-right:1px solid #c5cfe8;vertical-align:top;width:20%;background:#f0f4fb}'
     + '.smry td:last-child{border-right:none}'
-    + '.smry .lbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;color:#777;font-weight:600;display:block}'
-    + '.smry .num{font-size:18px;font-weight:900;font-family:monospace;color:#1a3f7a;line-height:1.1}'
-    + '.smry .sub{font-size:8.5px;color:#888;display:block;margin-top:1px}'
-    + '.footer{font-size:8.5px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:4px;margin-top:6px}';
+    + '.smry .lbl{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#1a3f7a;font-weight:700;display:block;margin-bottom:2px}'
+    + '.smry .num{font-size:20px;font-weight:900;font-family:monospace;color:#1a1a2e;line-height:1.1}'
+    + '.smry .sub{font-size:9px;color:#888;display:block;margin-top:2px}'
+    + '.footer{font-size:9px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:5px;margin-top:7px}';
 
   var secNum = 0;
   function h2(t) { secNum++; return '<h2>' + secNum + '. ' + t + '</h2>'; }
@@ -3188,55 +3191,74 @@ function generateReport() {
     + '<p>Laporan Ringkasan Keanggotaan &mdash; Tahun ' + YURAN_YEAR + '</p></div>'
     + '<div class="lhd-r"><strong>SULIT &mdash; UNTUK KEGUNAAN DALAMAN SAHAJA</strong><br>Dijana: ' + dateStr + ', ' + timeStr + '</div></div>'
 
+    // ── Summary bar ──
     + '<table class="smry"><tr>'
     + '<td><span class="lbl">Jumlah Ahli</span><span class="num">' + total + '</span><span class="sub">Semua ahli berdaftar</span></td>'
-    + '<td><span class="lbl">Bayar Yuran ' + YURAN_YEAR + '</span><span class="num">' + paid + '</span><span class="sub">' + pct + '% kadar pembayaran</span></td>'
+    + '<td><span class="lbl">Bayar Yuran ' + YURAN_YEAR + '</span><span class="num" style="color:#00875a;">' + paid + '</span><span class="sub">' + pct + '% kadar pembayaran</span></td>'
     + '<td><span class="lbl">Belum Bayar</span><span class="num" style="color:#c0392b;">' + unpaid + '</span><span class="sub">' + (100-pct) + '% masih tertunggak</span></td>'
-    + '<td><span class="lbl">Kutipan Yuran Tahunan</span><span class="num" style="font-size:13px;">RM ' + totalRM.toLocaleString() + '</span><span class="sub">+ RM ' + totalDaftar.toLocaleString() + ' pendaftaran</span></td>'
-    + '<td><span class="lbl">SSM Kritikal</span><span class="num" style="' + (ssmExp+ssmExpiring>0 ? 'color:#c0392b;' : '') + '">' + (ssmExp+ssmExpiring) + '</span><span class="sub">' + ssmExp + ' luput &middot; ' + ssmExpiring + ' hampir luput</span></td>'
+    + '<td><span class="lbl">Kutipan Tahunan</span><span class="num" style="font-size:16px;">RM ' + totalRM.toLocaleString() + '</span><span class="sub">+ RM ' + totalDaftar.toLocaleString() + ' pendaftaran</span></td>'
+    + '<td><span class="lbl">SSM Kritikal</span><span class="num" style="' + (ssmExp+ssmExpiring>0 ? 'color:#c0392b;' : 'color:#00875a;') + '">' + (ssmExp+ssmExpiring) + '</span><span class="sub">' + ssmExp + ' luput &middot; ' + ssmExpiring + ' hampir luput</span></td>'
     + '</tr></table>'
 
+    // ── Section 1: Statistik — 4 columns ──
     + '<div class="sec">' + h2('Statistik Keanggotaan')
-    + '<div class="grid2">'
+    + '<div class="grid4">'
+
     + '<div>'
-    + '<div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#1a3f7a;margin-bottom:3px;">Jantina &amp; Jenis Ahli</div>'
-    + '<div class="sline"><span class="lbl">Lelaki</span><span class="val">' + male + ' (' + p(male,total) + '%)</span></div>'
-    + '<div class="sline"><span class="lbl">Wanita</span><span class="val">' + female + ' (' + p(female,total) + '%)</span></div>'
-    + '<div style="height:3px;"></div>'
-    + '<div class="sline"><span class="lbl">Enterpris (ENT)</span><span class="val">' + ent + ' (' + p(ent,total) + '%)</span></div>'
-    + '<div class="sline"><span class="lbl">Syarikat Sendirian Berhad (SB)</span><span class="val">' + sb + ' (' + p(sb,total) + '%)</span></div>'
+    + '<div class="col-hd">Jantina</div>'
+    + sline('Lelaki', male + ' (' + p(male,total) + '%)', true)
+    + sline('Wanita', female + ' (' + p(female,total) + '%)', true)
     + '</div>'
+
     + '<div>'
-    + '<div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#1a3f7a;margin-bottom:3px;">Jenis Perniagaan</div>'
-    + '<div class="sline"><span class="lbl">Perdagangan (TRAD)</span><span class="val">' + jTRAD + '</span></div>'
-    + '<div class="sline"><span class="lbl">Makanan &amp; Minuman (F&amp;B)</span><span class="val">' + jFB + '</span></div>'
-    + '<div class="sline"><span class="lbl">Pembinaan (CONST)</span><span class="val">' + jCONST + '</span></div>'
-    + '<div class="sline"><span class="lbl">Produk &amp; Servis (P&amp;S)</span><span class="val">' + jPS + '</span></div>'
-    + '<div class="sline"><span class="lbl">Lain-lain / Kosmetik</span><span class="val">' + jOTH + '</span></div>'
-    + '<div class="sline" style="border:none;"><span class="lbl" style="color:#aaa;font-size:7.5px;">Tidak diisi</span><span class="val" style="color:#aaa;">' + (total-jTRAD-jFB-jCONST-jPS-jOTH) + '</span></div>'
+    + '<div class="col-hd">Jenis Ahli</div>'
+    + sline('Enterpris (ENT)', ent + ' (' + p(ent,total) + '%)', true)
+    + sline('Sdn Bhd (SB)', sb + ' (' + p(sb,total) + '%)', true)
     + '</div>'
+
+    + '<div>'
+    + '<div class="col-hd">Jenis Perniagaan</div>'
+    + sline('Perdagangan', jTRAD)
+    + sline('F&amp;B', jFB)
+    + sline('Pembinaan', jCONST)
+    + sline('Produk &amp; Servis', jPS)
+    + sline('Lain-lain / Kosmetik', jOTH)
+    + '</div>'
+
+    + '<div>'
+    + '<div class="col-hd">Status Yuran ' + YURAN_YEAR + '</div>'
+    + sline('Telah Bayar', paid + ' ahli', true)
+    + sline('Belum Bayar', unpaid + ' ahli', false)
+    + sline('Kadar Bayaran', pct + '%', true)
+    + sline('Kutipan Tahunan', 'RM ' + totalRM.toLocaleString(), true)
+    + sline('Kutipan Daftar', 'RM ' + totalDaftar.toLocaleString(), false)
+    + '</div>'
+
     + '</div></div>'
 
+    // ── Section 2: Ahli Mengikut Daerah — 3 cols ──
     + '<div class="sec">' + h2('Ahli Mengikut Daerah')
     + distTable + '</div>'
 
+    // ── Section 3: Pecahan Yuran Fasal ──
     + '<div class="sec">' + h2('Pecahan Yuran Mengikut Fasal ' + YURAN_YEAR)
     + '<table><thead><tr><th>Fasal</th><th style="text-align:center;">Jumlah</th><th style="text-align:center;">Bayar</th><th style="text-align:center;">Belum</th><th style="text-align:center;">%</th><th style="text-align:right;">Kadar/Thn (RM)</th><th style="text-align:right;">Kutipan (RM)</th></tr></thead><tbody>'
     + fasalRows
-    + '<tr style="background:#e8eef7;"><td colspan="6" style="font-weight:700;text-align:right;font-size:8px;text-transform:uppercase;letter-spacing:.3px;">Jumlah Kutipan Yuran Tahunan ' + YURAN_YEAR + '</td><td style="text-align:right;font-weight:900;font-family:monospace;">RM ' + totalRM.toLocaleString() + '</td></tr>'
-    + '<tr style="background:#e8eef7;"><td colspan="6" style="font-weight:700;text-align:right;font-size:8px;text-transform:uppercase;letter-spacing:.3px;">Jumlah Kutipan Yuran Pendaftaran</td><td style="text-align:right;font-weight:900;font-family:monospace;">RM ' + totalDaftar.toLocaleString() + '</td></tr>'
+    + '<tr style="background:#e8eef7;"><td colspan="6" style="font-weight:700;text-align:right;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;">Jumlah Kutipan Yuran Tahunan ' + YURAN_YEAR + '</td><td style="text-align:right;font-weight:900;font-family:monospace;">RM ' + totalRM.toLocaleString() + '</td></tr>'
+    + '<tr style="background:#e8eef7;"><td colspan="6" style="font-weight:700;text-align:right;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;">Jumlah Kutipan Yuran Pendaftaran</td><td style="text-align:right;font-weight:900;font-family:monospace;">RM ' + totalDaftar.toLocaleString() + '</td></tr>'
     + '</tbody></table></div>'
 
+    // ── Section 4: Unpaid — 2 columns ──
     + (unpaidM.length > 0
       ? '<div class="sec">' + h2('Senarai Ahli Belum Bayar Yuran ' + YURAN_YEAR + ' (' + unpaidM.length + ' ahli)')
-        + '<table><thead><tr><th style="width:18px;">#</th><th>No. Ahli</th><th>Nama Syarikat</th><th>Nama PIC</th><th>Daerah</th><th style="text-align:right;">Yuran (RM)</th><th>No. HP</th></tr></thead><tbody>'
-        + unpaidRows + '</tbody></table></div>'
+        + unpaid2col + '</div>'
       : '')
 
+    // ── Section 5: SSM ──
     + '<div class="sec">' + h2('Status SSM — Perlu Tindakan (' + ssmList.length + ' kes)')
     + (ssmList.length > 0
       ? '<table><thead><tr><th style="width:18px;">#</th><th>Nama Syarikat</th><th>Nama PIC</th><th>No. SSM</th><th>Tarikh Luput</th><th>Status</th></tr></thead><tbody>' + ssmRows + '</tbody></table>'
-      : '<p style="font-size:8.5px;padding:4px 0;color:#444;">Tiada SSM yang luput atau hampir luput pada tarikh laporan ini dijana.</p>')
+      : '<p style="font-size:10px;padding:4px 0;color:#444;">Tiada SSM yang luput atau hampir luput pada tarikh laporan ini dijana.</p>')
     + '</div>'
 
     + '<div class="footer">DEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR &nbsp;&mdash;&nbsp; Laporan Keanggotaan ' + YURAN_YEAR + ' &nbsp;&mdash;&nbsp; ' + dateStr + ', ' + timeStr + ' &nbsp;&mdash;&nbsp; SULIT / UNTUK KEGUNAAN DALAMAN SAHAJA</div>'
@@ -3250,6 +3272,7 @@ function generateReport() {
   setTimeout(function(){ win.print(); }, 600);
   addLog('Generate Report: ' + dateStr);
 }
+
 // ── PER-PAGE EXPORT ──────────────────────────────────────
 function togglePageExport(btn, e) {
   e.stopPropagation();
