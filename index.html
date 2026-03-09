@@ -752,32 +752,67 @@ tr.row-unpaid { background: #fff0f0 !important; }
 /* ── MOBILE SIDEBAR ── */
 #sidebar-overlay {
   display: none; position: fixed; inset: 0;
-  background: rgba(34,41,47,.5); z-index: 199;
+  background: rgba(34,41,47,.55); z-index: 199;
 }
 #sidebar-overlay.show { display: block; }
-#hamburger-btn {
-  display: none; position: fixed; bottom: 20px; right: 20px;
+
+/* ── MOBILE HAMBURGER BUTTON ── */
+.mobile-menu-btn {
+  display: none; position: fixed; bottom: 22px; right: 22px;
   z-index: 300; background: var(--primary); color: var(--white);
-  border: none; border-radius: 50%; width: 52px; height: 52px;
-  font-size: 20px; cursor: pointer;
-  box-shadow: 0 4px 18px rgba(var(--primary-rgb),.4);
+  border: none; border-radius: 50%; width: 54px; height: 54px;
+  font-size: 22px; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(var(--primary-rgb),.45);
   align-items: center; justify-content: center;
+  transition: transform .15s, box-shadow .15s;
 }
+.mobile-menu-btn:active { transform: scale(.93); }
 
 @media (max-width: 768px) {
   :root { --sidebar-w: 0px; }
-  #sidebar { transform: translateX(-260px); width: 260px; }
+
+  /* Sidebar slides in from left */
+  #sidebar {
+    transform: translateX(-280px);
+    width: 280px;
+    z-index: 201;
+    box-shadow: 4px 0 24px rgba(0,0,0,.18);
+  }
   #sidebar.open { transform: translateX(0); }
+
   #app { margin-left: 0; }
-  #hamburger-btn { display: flex; }
-  #backup-warning { left: 0; }
+  .mobile-menu-btn { display: flex; }
+  #backup-warning { left: 0; right: 0; width: auto; }
+
+  /* Grid adjustments */
   .kpi-4 { grid-template-columns: repeat(2,1fr); }
   .kpi-3 { grid-template-columns: repeat(2,1fr); }
   .district-grid { grid-template-columns: repeat(2,1fr); }
   .field-grid { grid-template-columns: 1fr; }
-  .page { padding: 16px; }
-  .page-topbar, .org-header { padding: 0 16px; }
-  .hdr-org-name { font-size: 12px; }
+
+  /* Spacing */
+  .page { padding: 14px 12px 80px; }
+  .page-topbar, .org-header { padding: 0 12px; }
+  .hdr-org-name { font-size: 11px; }
+  .hdr-center-logo { display: none; }
+
+  /* Tables: horizontal scroll on small screens */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 520px; }
+
+  /* Dashboard 3-col → 1-col on mobile */
+  .dash-grid-3 { grid-template-columns: 1fr !important; }
+  .dash-2col   { grid-template-columns: 1fr !important; }
+
+  /* Sec cards */
+  .sec-card { margin-bottom: 14px; }
+
+  /* Page statsbar wraps */
+  .page-statsbar-kpis { flex-wrap: wrap; gap: 8px; }
+  .ckpi { min-width: 120px; flex: 1 1 120px; }
+
+  /* Modal full screen */
+  .modal { width: 96vw; max-height: 90vh; overflow-y: auto; }
 }
 
 /* ── A4 PRINT CSS ── */
@@ -1018,7 +1053,7 @@ tr.row-unpaid { background: #fff0f0 !important; }
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+    <div class="dash-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
       <div class="sec-card">
         <div class="sec-head" style="background:linear-gradient(90deg,var(--primary-lt),transparent);border-left:4px solid var(--primary);"><h3 style="color:var(--primary);font-size:14px;font-weight:900;">&#x1F4CA; Statistik Ahli</h3></div>
         <div class="sec-body" id="dash-stats"></div>
