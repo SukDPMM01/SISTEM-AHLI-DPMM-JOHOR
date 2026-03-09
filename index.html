@@ -3143,27 +3143,29 @@ function generateReport() {
   var CR = C + 'text-align:right;';
   var CC = C + 'text-align:center;';
 
-  // district table: two halves side-by-side
+  // district table: single column (fits in narrow grid cell)
   var distTable = '<table style="width:100%;border-collapse:collapse;table-layout:auto;"><thead><tr>'
-    + '<th>Daerah</th><th style="' + CC + '">Ahli</th><th style="' + CC + '">Bayar</th><th style="' + CC + '">Belum</th><th style="' + CC + '">%</th>'
-    + '<th style="width:6px;background:#fff;border:none;padding:0;"></th>'
-    + '<th>Daerah</th><th style="' + CC + '">Ahli</th><th style="' + CC + '">Bayar</th><th style="' + CC + '">Belum</th><th style="' + CC + '">%</th>'
+    + '<th>Daerah</th>'
+    + '<th style="' + CC + '">Ahli</th>'
+    + '<th style="' + CC + '">Bayar</th>'
+    + '<th style="' + CC + '">Belum</th>'
+    + '<th style="' + CC + '">%</th>'
     + '</tr></thead><tbody>';
-  for (var di = 0; di < orderedDists.length; di += 2) {
-    var rowBg = (Math.floor(di/2) % 2 === 0) ? ' style="background:#f5f5f5;"' : '';
-    function dcell(d) {
-      if (!d || !districts[d]) return '<td colspan="5"></td>';
-      var ms = districts[d]; var un = ms.filter(function(m){ return !isPaid(m); }).length;
-      var pd2 = ms.length - un; var pp = p(pd2, ms.length);
-      var isUnk = d === 'Tidak Diketahui';
-      return '<td style="font-weight:' + (isUnk?'400':'600') + ';' + (isUnk?'color:#999;font-style:italic;':'') + '">' + d + '</td>'
-        + '<td style="' + CC + 'font-weight:700;">' + ms.length + '</td>'
-        + '<td style="' + CC + 'color:#1a7a4a;">' + pd2 + '</td>'
-        + '<td style="' + CC + (un>0?'font-weight:700;color:#c0392b;':'color:#999;') + '">' + un + '</td>'
-        + '<td style="' + CC + '">' + pp + '%</td>';
-    }
-    distTable += '<tr' + rowBg + '>' + dcell(orderedDists[di]) + '<td style="background:#fff;border:none;padding:0;"></td>' + dcell(orderedDists[di+1]) + '</tr>';
-  }
+  orderedDists.forEach(function(d, di) {
+    var rowBg = di % 2 === 0 ? ' style="background:#f5f5f5;"' : '';
+    var ms = districts[d];
+    var un = ms.filter(function(m){ return !isPaid(m); }).length;
+    var pd2 = ms.length - un;
+    var pp = p(pd2, ms.length);
+    var isUnk = d === 'Tidak Diketahui';
+    distTable += '<tr' + rowBg + '>'
+      + '<td style="font-weight:' + (isUnk?'400':'600') + ';' + (isUnk?'color:#999;font-style:italic;':'') + '">' + d + '</td>'
+      + '<td style="' + CC + 'font-weight:700;">' + ms.length + '</td>'
+      + '<td style="' + CC + 'color:#1a7a4a;">' + pd2 + '</td>'
+      + '<td style="' + CC + (un>0?'font-weight:700;color:#c0392b;':'color:#999;') + '">' + un + '</td>'
+      + '<td style="' + CC + '">' + pp + '%</td>'
+      + '</tr>';
+  });
   distTable += '</tbody></table>';
 
   var fasalRows = Object.keys(fasalGroups).sort().map(function(f, i){
@@ -3253,29 +3255,38 @@ function generateReport() {
     + '<td><span class="lbl">SSM Kritikal</span><span class="num" style="' + (ssmExp+ssmExpiring>0?'color:#c0392b;':'') + '">' + (ssmExp+ssmExpiring) + '</span><span class="sub">' + ssmExp + ' luput &middot; ' + ssmExpiring + ' hampir luput</span></td>'
     + '</tr></table>'
 
-    + '<div class="sec">' + h2('Statistik Keanggotaan')
-    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px;">'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;margin-bottom:8px;align-items:start;">'
+    + '<div style="grid-column:1/2;">'
     + stbl('Jantina', [['Lelaki', male+' ('+p(male,total)+'%)'], ['Wanita', female+' ('+p(female,total)+'%)']])
+    + '<div style="margin-top:6px;"></div>'
     + stbl('Jenis Ahli', [['Enterpris (ENT)', ent+' ('+p(ent,total)+'%)'], ['Sendirian Berhad (SB)', sb+' ('+p(sb,total)+'%)']])
+    + '</div>'
+    + '<div style="grid-column:2/3;">'
     + stbl('Jenis Perniagaan', [['Perdagangan (TRAD)', jTRAD], ['Makanan &amp; Minuman (F&amp;B)', jFB], ['Pembinaan (CONST)', jCONST], ['Produk &amp; Servis (P&amp;S)', jPS], ['Lain-lain / Kosmetik', jOTH], ['Tidak diisi', (total-jTRAD-jFB-jCONST-jPS-jOTH)]])
-    + '</div></div>'
+    + '</div>'
+    + '<div style="grid-column:3/4;"></div>'
+    + '</div>'
 
-    + '<div class="sec">' + h2('Ahli Mengikut Daerah') + distTable + '</div>'
+    + '<div style="display:grid;grid-template-columns:2fr 1fr;gap:0 12px;margin-bottom:8px;align-items:start;">'
 
-    + '<div class="sec">' + h2('Pecahan Yuran Mengikut Fasal ' + YURAN_YEAR)
+    + '<div>' + h2('Ahli Mengikut Daerah') + distTable + '</div>'
+
+    + '<div>' + h2('Pecahan Yuran Mengikut Fasal ' + YURAN_YEAR)
     + '<table><thead><tr>'
     + '<th>Fasal</th>'
-    + '<th style="' + CC + '">Jumlah</th>'
+    + '<th style="' + CC + '">Jml</th>'
     + '<th style="' + CC + '">Bayar</th>'
-    + '<th style="' + CC + '">Belum</th>'
+    + '<th style="' + CC + '">Blm</th>'
     + '<th style="' + CC + '">%</th>'
-    + '<th style="' + CR + '">Kadar/Thn</th>'
+    + '<th style="' + CR + '">RM/Thn</th>'
     + '<th style="' + CR + '">Kutipan</th>'
     + '</tr></thead><tbody>'
     + fasalRows
-    + '<tr class="tot-row"><td colspan="6" style="text-align:right;text-transform:uppercase;letter-spacing:.3px;">Jumlah Kutipan Yuran Tahunan ' + YURAN_YEAR + '</td><td style="' + CR + '">RM ' + totalRM.toLocaleString() + '</td></tr>'
-    + '<tr class="tot-row"><td colspan="6" style="text-align:right;text-transform:uppercase;letter-spacing:.3px;">Jumlah Kutipan Yuran Pendaftaran</td><td style="' + CR + '">RM ' + totalDaftar.toLocaleString() + '</td></tr>'
+    + '<tr class="tot-row"><td colspan="6" style="text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.3px;">Kutipan Tahunan ' + YURAN_YEAR + '</td><td style="' + CR + '">RM ' + totalRM.toLocaleString() + '</td></tr>'
+    + '<tr class="tot-row"><td colspan="6" style="text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.3px;">Kutipan Pendaftaran</td><td style="' + CR + '">RM ' + totalDaftar.toLocaleString() + '</td></tr>'
     + '</tbody></table></div>'
+
+    + '</div>'
 
     + (unpaidM.length > 0
       ? '<div class="sec">' + h2('Senarai Ahli Belum Bayar Yuran ' + YURAN_YEAR + ' (' + unpaidM.length + ' ahli)')
