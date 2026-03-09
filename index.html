@@ -2608,19 +2608,33 @@ function renderFollowUpPage() {
       + '</tr>';
   }).join('');
   var fuSSM = document.getElementById('followup-ssm-tbody');
-  if (fuSSM) fuSSM.innerHTML = ssmList.map(function(m,i){
-    var st = ssmStatus(m.ssmDeadline);
-    var rowCls = st==='expired'?'ssm-expired':st==='expiring'?'ssm-expiring':'';
-    return '<tr class="' + rowCls + '">'
-      + '<td class="row-num">' + (i+1) + '</td>'
-      + '<td><strong style="font-family:var(--mono);font-size:12px;">' + m.id + '</strong></td>'
-      + '<td><strong style="font-size:13px;">' + val(m.namaSyarikat) + '</strong></td>'
-      + '<td style="font-family:var(--mono);font-size:12px;">' + val(m.ssmDeadline) + '</td>'
-      + '<td>' + (st==='expired'?badge('LUPUT','badge-unpaid'):badge('HAMPIR LUPUT','badge-gold')) + '</td>'
-      + '<td><a href="tel:' + (m.hp||'') + '" style="font-family:var(--mono);font-size:12px;font-weight:700;">' + val(m.hp) + '</a></td>'
-      + '<td><button class="btn btn-outline btn-sm" onclick="copyMsgForMember(\'' + m.id + '\',4)">Salin Mesej SSM</button></td>'
-      + '</tr>';
-  }).join('');
+  if (fuSSM) {
+    var fuSSMGroups = [
+      { key: 'expired',  cls: 'grp-expired',  label: '🔴  LUPUT — Tindakan Segera Diperlukan' },
+      { key: 'expiring', cls: 'grp-expiring', label: '🟡  HAMPIR LUPUT — Perlu Diperbaharui Segera' }
+    ];
+    var fuSSMRows = '';
+    fuSSMGroups.forEach(function(grp) {
+      var grpMembers = ssmList.filter(function(m){ return ssmStatus(m.ssmDeadline) === grp.key; });
+      if (grpMembers.length === 0) return;
+      fuSSMRows += '<tr class="ssm-grp-hdr ' + grp.cls + '"><td colspan="7">' + grp.label + ' (' + grpMembers.length + ')</td></tr>';
+      grpMembers.forEach(function(m, i) {
+        var st = ssmStatus(m.ssmDeadline);
+        var rowCls = st==='expired' ? 'ssm-expired' : 'ssm-expiring';
+        fuSSMRows += '<tr class="' + rowCls + '">'
+          + '<td class="row-num">' + (i+1) + '</td>'
+          + '<td><strong style="font-family:var(--mono);">' + m.id + '</strong></td>'
+          + '<td><strong>' + val(m.namaSyarikat) + '</strong></td>'
+          + '<td style="font-family:var(--mono);">' + val(m.ssmDeadline) + '</td>'
+          + '<td>' + (st==='expired' ? badge('LUPUT','badge-unpaid') : badge('HAMPIR LUPUT','badge-gold')) + '</td>'
+          + '<td><a href="tel:' + (m.hp||'') + '" style="font-family:var(--mono);font-weight:700;color:var(--navy);">' + val(m.hp) + '</a></td>'
+          + '<td><button class="btn btn-outline btn-sm" onclick="copyMsgForMember(\'' + m.id + '\',4)">Salin Mesej SSM</button></td>'
+          + '</tr>';
+      });
+    });
+    fuSSM.innerHTML = fuSSMRows;
+  }
+
   var fuInc = document.getElementById('followup-incomplete-tbody');
   if (fuInc) fuInc.innerHTML = incompleteList.map(function(m,i){
     var issues = getIncomplete(m);
