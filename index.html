@@ -811,6 +811,9 @@ tr.row-unpaid { background: #fff0f0 !important; }
   .page-statsbar-kpis { flex-wrap: wrap; gap: 8px; }
   .ckpi { min-width: 120px; flex: 1 1 120px; }
 
+  /* Yuran 3-col → stack on mobile */
+  .yuran-3col { grid-template-columns: 1fr !important; }
+
   /* Modal full screen */
   .modal { width: 96vw; max-height: 90vh; overflow-y: auto; }
 }
@@ -1097,7 +1100,6 @@ tr.row-unpaid { background: #fff0f0 !important; }
     </div>
     <div class="sec-card">
       <div class="sec-head">
-        <h3>&#x1F4CB; Senarai Ahli Berdaftar</h3>
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="sec-count" id="table-count">—</span>
           <button class="btn btn-white btn-sm" onclick="openAddMemberModal()">+ Tambah Ahli</button>
@@ -1127,24 +1129,14 @@ tr.row-unpaid { background: #fff0f0 !important; }
 
   <!-- ══ DAERAH ══ -->
   <div id="page-daerah" class="page">
-    <div class="sec-card" style="margin-bottom:14px;padding:12px 18px;">
-      <div class="sec-head" style="margin-bottom:0;">
-        <h3>🗺 Ahli Mengikut Daerah</h3>
-        <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('daerah','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('daerah','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('daerah','image')">🖼 &nbsp;Imej (A4)</div></div></div>
-      </div>
-    </div>
+    <div class="no-print" style="display:flex;justify-content:flex-end;margin-bottom:12px;"><div class="page-export-wrap" style="position:relative;"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('daerah','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('daerah','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('daerah','image')">🖼 &nbsp;Imej (A4)</div></div></div></div>
+
     <div class="district-grid" id="district-grid"></div>
     <div id="district-tables"></div>
   </div>
 
   <!-- ══ YURAN TRACKER ══ -->
   <div id="page-yuran" class="page">
-  <div class="sec-card no-print" style="margin-bottom:14px;padding:10px 18px;">
-    <div class="sec-head" style="margin-bottom:0;">
-      <h3>💰 Yuran Tracker</h3>
-      <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('yuran','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('yuran','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('yuran','image')">🖼 &nbsp;Imej (A4)</div></div></div>
-    </div>
-  </div>
     <div class="kpi-grid kpi-4" style="margin-bottom:8px;">
       <div class="kpi-card danger">
         <div class="kpi-label">BELUM BAYAR <span class="yuran-year-label">2025</span></div>
@@ -1167,19 +1159,32 @@ tr.row-unpaid { background: #fff0f0 !important; }
         <div class="kpi-sub" style="font-size:11px;">Yuran pendaftaran (sekali sahaja)</div>
       </div>
     </div>
-    <div class="kpi-grid kpi-2" style="margin-bottom:18px;">
-      <div class="kpi-card" style="padding:12px 18px;">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;position:relative;z-index:3;">Kadar Pembayaran <span class="yuran-year-label">2025</span></div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:6px;position:relative;z-index:3;">
-          <div class="kpi-val" id="yuran-kpi-pct" style="font-size:28px;">—</div>
+    <div class="yuran-3col" style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;margin-bottom:18px;align-items:stretch;">
+      <!-- Col 1: Kadar Pembayaran -->
+      <div class="kpi-card" style="padding:14px 18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;position:relative;z-index:3;">Kadar Pembayaran <span class="yuran-year-label">2025</span></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;position:relative;z-index:3;">
+          <div class="kpi-val" id="yuran-kpi-pct" style="font-size:30px;">—</div>
           <div style="flex:1;background:#eee;border-radius:4px;height:10px;overflow:hidden;">
             <div id="yuran-progress-bar" style="height:100%;background:var(--primary);width:0%;border-radius:4px;transition:width .5s;"></div>
           </div>
         </div>
       </div>
-      <div class="kpi-card" style="padding:12px 18px;">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px;position:relative;z-index:3;">Pecahan Mengikut Fasal</div>
-        <div id="yuran-fasal-breakdown" style="font-size:12px;position:relative;z-index:3;"></div>
+      <!-- Col 2: Export Button (center) -->
+      <div class="no-print" style="display:flex;align-items:center;justify-content:center;min-width:120px;">
+        <div class="page-export-wrap" style="position:relative;">
+          <button class="page-export-btn" onclick="togglePageExport(this,event)" style="font-size:14px;padding:14px 22px;border-radius:10px;box-shadow:0 4px 18px rgba(108,92,231,.35);">📤 Eksport ▾</button>
+          <div class="page-export-dd">
+            <div class="page-export-item" onclick="pageExport('yuran','csv')">📊 &nbsp;CSV / Excel</div>
+            <div class="page-export-item" onclick="pageExport('yuran','pdf')">📄 &nbsp;PDF (A4)</div>
+            <div class="page-export-item" onclick="pageExport('yuran','image')">🖼 &nbsp;Imej (A4)</div>
+          </div>
+        </div>
+      </div>
+      <!-- Col 3: Pecahan Mengikut Fasal -->
+      <div class="kpi-card" style="padding:14px 18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;position:relative;z-index:3;">Pecahan Mengikut Fasal</div>
+        <div id="yuran-fasal-breakdown" style="font-size:14px;position:relative;z-index:3;"></div>
       </div>
     </div>
     <div class="sec-card" style="margin-bottom:18px;">
@@ -1204,12 +1209,8 @@ tr.row-unpaid { background: #fff0f0 !important; }
 
   <!-- ══ SSM TRACKER ══ -->
   <div id="page-ssm" class="page">
-  <div class="sec-card no-print" style="margin-bottom:14px;padding:10px 18px;">
-    <div class="sec-head" style="margin-bottom:0;">
-      <h3>🏢 SSM Tracker</h3>
-      <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('ssm','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('ssm','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('ssm','image')">🖼 &nbsp;Imej (A4)</div></div></div>
-    </div>
-  </div>
+    <div class="no-print" style="display:flex;justify-content:flex-end;margin-bottom:12px;"><div class="page-export-wrap" style="position:relative;"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('ssm','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('ssm','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('ssm','image')">🖼 &nbsp;Imej (A4)</div></div></div></div>
+
     <div class="kpi-grid kpi-3">
       <div class="kpi-card danger">
         <div class="kpi-label">SSM Telah Luput</div>
@@ -1240,12 +1241,8 @@ tr.row-unpaid { background: #fff0f0 !important; }
 
   <!-- ══ FOLLOW UP ══ -->
   <div id="page-followup" class="page">
-  <div class="sec-card no-print" style="margin-bottom:14px;padding:10px 18px;">
-    <div class="sec-head" style="margin-bottom:0;">
-      <h3>📞 Follow Up</h3>
-      <div class="page-export-wrap no-print"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('followup','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('followup','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('followup','image')">🖼 &nbsp;Imej (A4)</div></div></div>
-    </div>
-  </div>
+    <div class="no-print" style="display:flex;justify-content:flex-end;margin-bottom:12px;"><div class="page-export-wrap" style="position:relative;"><button class="page-export-btn" onclick="togglePageExport(this,event)">📤 Eksport ▾</button><div class="page-export-dd"><div class="page-export-item" onclick="pageExport('followup','csv')">📊 &nbsp;CSV / Excel</div><div class="page-export-item" onclick="pageExport('followup','pdf')">📄 &nbsp;PDF (A4)</div><div class="page-export-item" onclick="pageExport('followup','image')">🖼 &nbsp;Imej (A4)</div></div></div></div>
+
     <div class="fu-counters">
       <div class="fu-counter"><div class="fu-count" id="fu-count-yuran">0</div><div class="fu-label">Yuran Belum Bayar</div></div>
       <div class="fu-counter"><div class="fu-count" id="fu-count-ssm">0</div><div class="fu-label">SSM Perlu Diperbaharui</div></div>
@@ -2511,13 +2508,16 @@ function renderYuranPage() {
       if (isPaid(m)) fasalGroups[f].paid++;
     });
     fasalBox.innerHTML = Object.keys(fasalGroups).sort().map(function(f){
+    fasalBox.innerHTML = Object.keys(fasalGroups).sort().map(function(f){
       var g = fasalGroups[f];
-      return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">'
-        +'<span style="font-weight:700;color:#555;">'+f+'</span>'
-        +'<span style="font-family:var(--mono);font-size:11px;"><strong style="color:var(--success);">'+g.paid+'</strong>/<span style="color:var(--muted);">'+g.total+'</span> &nbsp;<span style="color:var(--primary);">RM'+g.rate+'/thn</span></span>'
+      return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--gray1);">'
+        +'<span style="font-weight:900;font-size:16px;color:var(--navy);font-family:var(--mono);">'+f+'</span>'
+        +'<span style="font-family:var(--mono);font-size:13px;text-align:right;">'
+        +'<strong style="color:var(--success);font-size:16px;">'+g.paid+'</strong><span style="color:var(--muted);">/'+g.total+'</span>'
+        +' &nbsp;<span style="background:var(--primary-lt);color:var(--primary);font-size:12px;font-weight:700;padding:2px 7px;border-radius:4px;">RM'+g.rate+'/thn</span>'
+        +'</span>'
         +'</div>';
     }).join('');
-  }
 
   /* ── UNPAID TABLE ── */
   var unpaidTbody = document.getElementById('unpaid-tbody');
