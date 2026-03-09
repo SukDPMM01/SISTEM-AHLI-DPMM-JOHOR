@@ -495,6 +495,22 @@ input, select, textarea, button { font-family: var(--sans); }
   font-family: var(--head); font-size: 13px; font-weight: 700; color: var(--text);
   letter-spacing: 0.3px;
 }
+/* Dashboard-style section headers — match topbar gradient, smaller font */
+.dash-sec-head {
+  background: linear-gradient(135deg, #6C5CE7 0%, #8B7CF0 50%, #5549D4 100%) !important;
+  border-bottom: none !important;
+  padding: 10px 16px !important;
+  box-shadow: 0 2px 8px rgba(108,92,231,.25);
+}
+.dash-sec-head h3 {
+  font-family: var(--head) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
 .sec-head .sec-count { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
 .sec-body { padding: 18px; }
 
@@ -1014,19 +1030,23 @@ tr.row-unpaid { background: #fff0f0 !important; }
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
-      <div class="sec-card">
-        <div class="sec-head" style="background:linear-gradient(90deg,var(--primary-lt),transparent);border-left:4px solid var(--primary);"><h3 style="color:var(--primary);font-size:14px;font-weight:900;">&#x1F4CA; Statistik Ahli</h3></div>
-        <div class="sec-body" id="dash-stats"></div>
+    <div style="display:grid;grid-template-columns:1.15fr 0.65fr 0.9fr;gap:14px;margin-bottom:14px;">
+      <div class="sec-card" style="overflow:hidden;">
+        <div class="sec-head dash-sec-head"><h3>&#x1F4CA; Statistik Ahli</h3></div>
+        <div class="sec-body" style="padding:12px 16px;" id="dash-stats"></div>
       </div>
-      <div class="sec-card">
-        <div class="sec-head" style="background:linear-gradient(90deg,var(--info-lt),transparent);border-left:4px solid var(--info);"><h3 style="color:var(--info);font-size:14px;font-weight:900;">&#x1F5FA; Ahli Mengikut Daerah</h3></div>
-        <div class="sec-body" style="padding:6px 14px;" id="district-summary-mini"></div>
+      <div class="sec-card" style="overflow:hidden;">
+        <div class="sec-head dash-sec-head"><h3>&#x1F5FA; Ahli Mengikut Daerah</h3></div>
+        <div class="sec-body" style="padding:4px 10px;" id="district-summary-mini"></div>
+      </div>
+      <div class="sec-card" style="overflow:hidden;">
+        <div class="sec-head dash-sec-head"><h3>&#x1F3EA; Jenis Perniagaan</h3></div>
+        <div class="sec-body" style="padding:12px 16px;" id="dash-jenis"></div>
       </div>
     </div>
 
-    <div class="sec-card" style="margin-bottom:18px;">
-      <div class="sec-head" style="background:linear-gradient(90deg,var(--danger-lt),transparent);border-left:4px solid var(--danger);"><h3 style="color:var(--danger);font-size:14px;font-weight:900;">&#x26A0; Tindakan Segera Diperlukan</h3></div>
+    <div class="sec-card" style="margin-bottom:14px;overflow:hidden;">
+      <div class="sec-head dash-sec-head" style="background:linear-gradient(135deg,#FF6B6B 0%,#ff8585 50%,#e85555 100%) !important;"><h3>&#x26A0; Tindakan Segera Diperlukan</h3></div>
       <div class="sec-body" id="dash-alerts"></div>
     </div>
 
@@ -2415,9 +2435,9 @@ function renderDashboard() {
     + statRow('Wanita', female, fPct, 'var(--info)')
     + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 0 10px;">Jenis Ahli</div>'
     + statRow('Enterpris (ENT)', ent, ePct, 'var(--primary)')
-    + statRow('Sdn Bhd (SB)', sb, sPct, 'var(--success)')
-    + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 0 10px;">Jenis Perniagaan</div>'
-    + statCount('Perdagangan', jTRAD, 'var(--primary)')
+    + statRow('Sdn Bhd (SB)', sb, sPct, 'var(--success)');
+
+  var jenisHtml = statCount('Perdagangan', jTRAD, 'var(--primary)')
     + statCount('F&B', jFB, 'var(--warning)')
     + statCount('Pembinaan', jCONST, 'var(--success)')
     + statCount('Produk & Servis', jPS, 'var(--info)')
@@ -2425,6 +2445,8 @@ function renderDashboard() {
 
   var dashStats = document.getElementById('dash-stats');
   if (dashStats) dashStats.innerHTML = statsHtml;
+  var dashJenis = document.getElementById('dash-jenis');
+  if (dashJenis) dashJenis.innerHTML = jenisHtml;
 
   // Yuran progress bar
   var yb = document.getElementById('yuran-progress-bar'); if(yb) yb.style.width=pct+'%';
@@ -2695,9 +2717,9 @@ function renderDistrictMini() {
   div.innerHTML = ordered.map(function(d) {
     var mems = districts[d];
     var isUnknown = d === 'Tidak Diketahui';
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--gray1);">'
-      + '<span style="font-size:12.5px;font-weight:700;color:' + (isUnknown ? 'var(--danger)' : 'var(--text)') + ';">' + d + '</span>'
-      + '<span style="font-family:var(--mono);font-weight:900;font-size:13px;color:' + (isUnknown ? 'var(--danger)' : 'var(--primary)') + ';">' + mems.length + '</span>'
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid var(--gray1);gap:6px;">'
+      + '<span style="font-size:11.5px;font-weight:700;color:' + (isUnknown ? 'var(--danger)' : 'var(--text)') + ';flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + d + '</span>'
+      + '<span style="font-family:var(--mono);font-weight:900;font-size:13px;color:' + (isUnknown ? 'var(--danger)' : 'var(--primary)') + ';flex-shrink:0;">' + mems.length + '</span>'
       + '</div>';
   }).join('');
 }
@@ -3071,13 +3093,13 @@ function generateReport() {
 
   function p(n, d) { return d ? Math.round(n/d*100) : 0; }
   function sline(label, val) {
-    return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted #ddd;font-size:9px;">'
+    return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted #ddd;font-size:10px;">'
       + '<span style="color:#444;">' + label + '</span>'
       + '<span style="font-weight:700;font-family:monospace;color:#1a1a2e;">' + val + '</span></div>';
   }
 
   // district table: two columns side-by-side
-  var distTable = '<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>'
+  var distTable = '<table style="width:100%;border-collapse:collapse;font-size:9.5px;"><thead><tr>'
     + '<th style="width:27%;">Daerah</th><th style="width:5%;text-align:center;">Ahli</th><th style="width:5%;text-align:center;">Bayar</th><th style="width:5%;text-align:center;">Belum</th><th style="width:5%;text-align:center;">%</th>'
     + '<th style="width:3%;background:#fff;border:none;"></th>'
     + '<th style="width:27%;">Daerah</th><th style="width:5%;text-align:center;">Ahli</th><th style="width:5%;text-align:center;">Bayar</th><th style="width:5%;text-align:center;">Belum</th><th style="width:5%;text-align:center;">%</th>'
@@ -3132,30 +3154,30 @@ function generateReport() {
       + '<td style="font-weight:700;' + (isExp ? 'color:#c0392b;' : 'color:#a0620a;') + '">' + (isExp ? 'LUPUT' : 'HAMPIR LUPUT') + '</td></tr>';
   }).join('');
 
-  var css = '@page{size:A4 portrait;margin:11mm 13mm 10mm}'
+  var css = '@page{size:A4 portrait;margin:10mm 12mm 9mm}'
     + '*{box-sizing:border-box;margin:0;padding:0}'
-    + 'body{font-family:"Segoe UI",Arial,sans-serif;font-size:9.5px;color:#1a1a2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;line-height:1.35}'
+    + 'body{font-family:"Segoe UI",Arial,sans-serif;font-size:10.5px;color:#1a1a2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;line-height:1.4}'
     + 'table{width:100%;border-collapse:collapse}'
-    + 'th{background:#1a3f7a;color:#fff;padding:4px 6px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}'
-    + 'td{padding:3px 6px;border-bottom:1px solid #e5e5e5;vertical-align:middle;font-size:8.5px}'
-    + 'h2{font-size:9.5px;font-weight:700;color:#1a3f7a;border-bottom:1px solid #1a3f7a;padding-bottom:2px;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.6px}'
-    + '.sec{margin-bottom:8px;page-break-inside:avoid}'
+    + 'th{background:#1a3f7a;color:#fff;padding:5px 7px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}'
+    + 'td{padding:4px 7px;border-bottom:1px solid #e5e5e5;vertical-align:middle;font-size:9.5px}'
+    + 'h2{font-size:10.5px;font-weight:700;color:#1a3f7a;border-bottom:1.5px solid #1a3f7a;padding-bottom:3px;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.6px}'
+    + '.sec{margin-bottom:6px;page-break-inside:avoid}'
     + '.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}'
-    + '.sline{display:flex;justify-content:space-between;padding:1.5px 0;border-bottom:1px dotted #e0e0e0;font-size:8.5px}'
+    + '.sline{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted #e0e0e0;font-size:9.5px}'
     + '.sline .lbl{color:#444}'
     + '.sline .val{font-weight:700;font-family:monospace}'
-    + '.lhd{border-bottom:2px solid #1a3f7a;padding-bottom:5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-end}'
-    + '.lhd-l h1{font-size:13px;font-weight:900;color:#1a3f7a;letter-spacing:.3px}'
-    + '.lhd-l p{font-size:8px;color:#666;margin-top:1px}'
-    + '.lhd-r{text-align:right;font-size:8px;color:#666;line-height:1.5}'
-    + '.lhd-r strong{font-size:8.5px;color:#1a1a2e}'
-    + '.smry{width:100%;border-collapse:collapse;margin-bottom:8px;border:1px solid #ccc}'
-    + '.smry td{padding:5px 8px;border-right:1px solid #ddd;vertical-align:top;width:20%}'
+    + '.lhd{border-bottom:2px solid #1a3f7a;padding-bottom:5px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-end}'
+    + '.lhd-l h1{font-size:14px;font-weight:900;color:#1a3f7a;letter-spacing:.3px}'
+    + '.lhd-l p{font-size:9px;color:#666;margin-top:1px}'
+    + '.lhd-r{text-align:right;font-size:9px;color:#666;line-height:1.5}'
+    + '.lhd-r strong{font-size:9.5px;color:#1a1a2e}'
+    + '.smry{width:100%;border-collapse:collapse;margin-bottom:6px;border:1px solid #ccc}'
+    + '.smry td{padding:6px 9px;border-right:1px solid #ddd;vertical-align:top;width:20%}'
     + '.smry td:last-child{border-right:none}'
-    + '.smry .lbl{font-size:7.5px;text-transform:uppercase;letter-spacing:.7px;color:#777;font-weight:600;display:block}'
-    + '.smry .num{font-size:16px;font-weight:900;font-family:monospace;color:#1a3f7a;line-height:1.1}'
-    + '.smry .sub{font-size:7.5px;color:#888;display:block;margin-top:1px}'
-    + '.footer{font-size:7.5px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:4px;margin-top:8px}';
+    + '.smry .lbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;color:#777;font-weight:600;display:block}'
+    + '.smry .num{font-size:18px;font-weight:900;font-family:monospace;color:#1a3f7a;line-height:1.1}'
+    + '.smry .sub{font-size:8.5px;color:#888;display:block;margin-top:1px}'
+    + '.footer{font-size:8.5px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:4px;margin-top:6px}';
 
   var secNum = 0;
   function h2(t) { secNum++; return '<h2>' + secNum + '. ' + t + '</h2>'; }
