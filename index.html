@@ -11,47 +11,47 @@
    VUEXY-INSPIRED DESIGN SYSTEM
 ══════════════════════════════════════════ */
 :root {
-  /* ── Banking Dashboard Color Palette ── */
+  /* ── Banking Dashboard Palette ── */
   --primary:    #6C5CE7;
-  --primary-lt: #EAE6FF;
-  --primary-dk: #5849D1;
+  --primary-lt: #EEE9FD;
+  --primary-dk: #5549D4;
   --primary-rgb: 108,92,231;
 
   --secondary:  #82868B;
-  --success:    #00B894;
-  --success-lt: #D4F5EF;
-  --warning:    #FF7043;
-  --warning-lt: #FFE5DF;
-  --danger:     #E84393;
-  --danger-lt:  #FFE0F1;
-  --info:       #00CEC9;
-  --info-lt:    #D4F5F4;
+  --success:    #00D4A0;
+  --success-lt: #E0FBF5;
+  --warning:    #FFA94D;
+  --warning-lt: #FFF4E6;
+  --danger:     #FF6B6B;
+  --danger-lt:  #FFEAEA;
+  --info:       #00D4C5;
+  --info-lt:    #E0FAFA;
 
   --white:      #FFFFFF;
-  --body-bg:    #F0EFF8;
+  --body-bg:    #F5F4FB;
   --card-bg:    #FFFFFF;
   --sidebar-bg: #FFFFFF;
-  --gray1:      #E8E6F3;
-  --gray2:      #D0CDE6;
-  --gray3:      #A89FC7;
-  --text:       #2D2B55;
-  --text2:      #4A4580;
-  --muted:      #8078A8;
-  --border:     #D0CDE6;
+  --gray1:      #EBE9F1;
+  --gray2:      #D8D6DE;
+  --gray3:      #B9B9C3;
+  --text:       #2D2B3D;
+  --text2:      #4E4B6B;
+  --muted:      #6E6B7B;
+  --border:     #D8D6DE;
 
   /* Legacy aliases for JS references */
   --navy:       #6C5CE7;
-  --navy2:      #5849D1;
-  --navy3:      #4038C0;
-  --navy-lt:    #EAE6FF;
-  --navy-bg:    #F0EFF8;
-  --crimson:    #E84393;
-  --crimson2:   #D23080;
-  --gold:       #FF7043;
-  --gold-lt:    #FFE5DF;
-  --danger-lt:  #FFE0F1;
-  --success-lt: #D4F5EF;
-  --offwhite:   #F0EFF8;
+  --navy2:      #5549D4;
+  --navy3:      #3F31B8;
+  --navy-lt:    #EEE9FD;
+  --navy-bg:    #F5F4FB;
+  --crimson:    #FF6B6B;
+  --crimson2:   #e85555;
+  --gold:       #FFA94D;
+  --gold-lt:    #FFF4E6;
+  --danger-lt:  #FFEAEA;
+  --success-lt: #E0FBF5;
+  --offwhite:   #F5F4FB;
 
   --sans:   'Inter', 'Montserrat', sans-serif;
   --head:   'Montserrat', sans-serif;
@@ -93,7 +93,7 @@ input, select, textarea, button { font-family: var(--sans); }
   border: 1px solid var(--gray1);
 }
 .login-banner {
-  background: linear-gradient(135deg, #4A2D96 0%, #6C5CE7 60%, #9D8FF5 100%);
+  background: linear-gradient(135deg, #6C5CE7 0%, #9B8EF5 100%);
   padding: 32px 36px 28px;
   text-align: center; position: relative; overflow: hidden;
 }
@@ -242,7 +242,7 @@ input, select, textarea, button { font-family: var(--sans); }
 .sb-stats-inner {
   display: flex; align-items: center; justify-content: center; gap: 10px;
 }
-.sb-count { font-family: var(--mono); font-size: 36px; font-weight: 700; color: var(--primary); line-height: 1; }
+.sb-count { font-family: var(--mono); font-size: 36px; font-weight: 700; color: var(--info); line-height: 1; }
 .sb-stats-right { text-align: left; }
 .sb-count-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
 .sb-datetime { font-size: 10px; color: #000; font-family: var(--mono); margin-top: 3px; font-weight: 600; }
@@ -323,11 +323,11 @@ input, select, textarea, button { font-family: var(--sans); }
 .hdr-org-text { flex: 1; min-width: 0; }
 .hdr-org-name {
   font-family: var(--head); font-size: 18px; font-weight: 900;
-  color: var(--primary-dk); line-height: 1.2; letter-spacing: 0.5px;
+  color: #1a3f7a; line-height: 1.2; letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 .hdr-org-state {
-  font-size: 13px; font-weight: 700; color: var(--text);
+  font-size: 13px; font-weight: 700; color: #000;
   letter-spacing: 2px; text-transform: uppercase; margin-top: 3px;
 }
 /* ── DIGITAL CLOCK ── */
@@ -338,34 +338,36 @@ input, select, textarea, button { font-family: var(--sans); }
 }
 .digital-time {
   font-family: 'Share Tech Mono', 'Courier New', monospace;
-  font-size: 34px; font-weight: 700; color: var(--primary);
+  font-size: 34px; font-weight: 700; color: #000;
   letter-spacing: 4px; line-height: 1;
 }
 .digital-sec {
   font-family: 'Share Tech Mono', 'Courier New', monospace;
-  font-size: 24px; font-weight: 700; color: var(--primary-dk); line-height: 1;
+  font-size: 24px; font-weight: 700; color: #333; line-height: 1;
   letter-spacing: 3px;
 }
 .digital-date-row {
   font-family: 'Share Tech Mono', 'Courier New', monospace;
-  font-size: 11px; color: var(--text2); letter-spacing: 3px;
+  font-size: 11px; color: #000; letter-spacing: 3px;
   text-align: center; margin-top: 4px; font-weight: 600;
 }
 
 /* ── PAGE TOPBAR ── */
 .page-topbar {
-  background: var(--white); height: var(--topbar-h);
+  background: linear-gradient(135deg, #6C5CE7 0%, #8B7CF0 50%, #5549D4 100%);
+  height: var(--topbar-h);
   padding: 0 28px; display: flex; align-items: center;
-  justify-content: space-between; border-bottom: 1px solid var(--gray1);
-  box-shadow: var(--shadow-sm);
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(108,92,231,.35);
 }
 .topbar-left { min-width: 160px; display: flex; gap: 8px; align-items: center; }
 .topbar-center { text-align: center; flex: 1; }
 .topbar-title {
   font-family: var(--head); font-size: 22px; font-weight: 900;
-  color: var(--text); letter-spacing: 0.5px; text-transform: uppercase;
+  color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0,0,0,.2);
 }
-.topbar-sub { font-size: 12px; color: var(--muted); margin-top: 2px; display: none; }
+.topbar-sub { font-size: 12px; color: rgba(255,255,255,.75); margin-top: 2px; display: none; }
 .topbar-right { min-width: 160px; display: flex; gap: 8px; justify-content: flex-end; }
 
 /* ══════════════════════════════════════════
@@ -380,16 +382,27 @@ input, select, textarea, button { font-family: var(--sans); }
 }
 .btn-primary { background: var(--primary); color: var(--white); box-shadow: 0 4px 14px rgba(var(--primary-rgb),.4); }
 .btn-primary:hover { background: var(--primary-dk); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(var(--primary-rgb),.5); }
-.btn-danger { background: var(--danger); color: var(--white); box-shadow: 0 4px 14px rgba(234,84,85,.3); }
-.btn-danger:hover { background: #d94445; transform: translateY(-1px); }
-.btn-gold { background: var(--warning); color: var(--white); box-shadow: 0 4px 14px rgba(255,159,67,.3); }
-.btn-gold:hover { background: #e8892a; transform: translateY(-1px); }
+.btn-danger { background: var(--danger); color: var(--white); box-shadow: 0 4px 14px rgba(255,107,107,.3); }
+.btn-danger:hover { background: #e85555; transform: translateY(-1px); }
+.btn-gold { background: var(--warning); color: var(--white); box-shadow: 0 4px 14px rgba(255,169,77,.3); }
+.btn-gold:hover { background: #e8952a; transform: translateY(-1px); }
 .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
 .btn-outline:hover { background: var(--primary-lt); }
 .btn-outline-red { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); }
 .btn-outline-red:hover { background: var(--danger-lt); }
 .btn-white { background: rgba(255,255,255,.15); color: var(--white); border: 1px solid rgba(255,255,255,.3); }
 .btn-white:hover { background: rgba(255,255,255,.25); }
+/* White-style buttons for use inside the purple topbar */
+.page-topbar .btn-outline, .page-topbar .btn-primary, .page-topbar .btn-sm {
+  background: rgba(255,255,255,.15) !important;
+  color: #fff !important;
+  border: 1.5px solid rgba(255,255,255,.45) !important;
+  box-shadow: none !important;
+}
+.page-topbar .btn-outline:hover, .page-topbar .btn-primary:hover, .page-topbar .btn-sm:hover {
+  background: rgba(255,255,255,.28) !important;
+  transform: none !important;
+}
 .btn-sm { padding: 6px 12px; font-size: 11.5px; }
 .btn-xs { padding: 4px 9px; font-size: 11px; }
 
@@ -410,41 +423,54 @@ input, select, textarea, button { font-family: var(--sans); }
   box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
   transition: box-shadow .2s, transform .2s;
   text-align: center;
+  isolation: isolate;
 }
 .kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .kpi-card::before {
-  content: ''; position: absolute; top: 0; right: 0;
-  width: 80px; height: 80px; border-radius: 0 var(--radius-lg) 0 80px;
-  background: var(--primary-lt); opacity: 0.6;
+  content: ''; position: absolute; top: -10px; right: -10px;
+  width: 90px; height: 90px; border-radius: 50%;
+  background: var(--primary-lt); opacity: 0.85;
+  z-index: 0; pointer-events: none;
+}
+.kpi-card::after {
+  content: ''; position: absolute; bottom: -20px; left: -20px;
+  width: 70px; height: 70px; border-radius: 50%;
+  background: var(--primary-lt); opacity: 0.4;
   z-index: 0; pointer-events: none;
 }
 .kpi-card.danger::before { background: var(--danger-lt); }
-.kpi-card.gold::before { background: var(--warning-lt); }
-.kpi-card.green::before { background: var(--success-lt); }
+.kpi-card.danger::after  { background: var(--danger-lt); }
+.kpi-card.gold::before   { background: var(--warning-lt); }
+.kpi-card.gold::after    { background: var(--warning-lt); }
+.kpi-card.green::before  { background: var(--success-lt); }
+.kpi-card.green::after   { background: var(--success-lt); }
+.kpi-card.teal::before   { background: var(--info-lt); }
+.kpi-card.teal::after    { background: var(--info-lt); }
 .kpi-label {
   font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
   color: var(--muted); margin-bottom: 10px;
-  position: relative; z-index: 1;
+  position: relative; z-index: 3;
 }
 .kpi-val {
   font-family: var(--mono); font-size: 36px; font-weight: 700;
   color: var(--primary); line-height: 1; text-align: center;
-  position: relative; z-index: 1;
+  position: relative; z-index: 3;
 }
 .kpi-card.danger .kpi-val { color: var(--danger); }
-.kpi-card.gold .kpi-val { color: var(--warning); }
-.kpi-card.green .kpi-val { color: var(--success); }
-.kpi-sub { font-size: 12.5px; color: var(--muted); margin-top: 6px; position: relative; z-index: 1; }
+.kpi-card.gold .kpi-val   { color: var(--warning); }
+.kpi-card.green .kpi-val  { color: var(--success); }
+.kpi-card.teal .kpi-val   { color: var(--info); }
+.kpi-sub { font-size: 12.5px; color: var(--muted); margin-top: 6px; position: relative; z-index: 3; }
 
 /* ── PAGE EXPORT BUTTON ── */
 .page-export-wrap { position: relative; display: inline-block; }
 .page-export-btn {
-  background: var(--white); border: 1.5px solid var(--primary); color: var(--primary);
-  border-radius: var(--radius); padding: 5px 13px; font-size: 12px; font-weight: 700;
+  background: var(--primary); border: none; color: var(--white);
+  border-radius: var(--radius); padding: 6px 14px; font-size: 12px; font-weight: 700;
   cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all .15s;
-  white-space: nowrap;
+  white-space: nowrap; box-shadow: 0 2px 10px rgba(108,92,231,.35);
 }
-.page-export-btn:hover { background: var(--primary); color: #fff; }
+.page-export-btn:hover { background: var(--primary-dk); transform: translateY(-1px); }
 .page-export-dd {
   display: none; position: absolute; right: 0; top: calc(100% + 4px);
   background: var(--white); border: 1px solid var(--gray1); border-radius: var(--radius);
@@ -457,28 +483,6 @@ input, select, textarea, button { font-family: var(--sans); }
 }
 .page-export-item:last-child { border-bottom: none; }
 .page-export-item:hover { background: var(--primary-lt); color: var(--primary); }
-
-/* ── TOPBAR EXPORT DROPDOWN ── */
-.export-wrap { position: relative; display: inline-block; }
-.btn-export {
-  background: var(--primary); color: var(--white);
-  border-radius: var(--radius); padding: 6px 14px; font-size: 12px; font-weight: 700;
-  cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all .15s;
-  white-space: nowrap; border: none; letter-spacing: 0.3px;
-  box-shadow: 0 4px 14px rgba(var(--primary-rgb),.35);
-}
-.btn-export:hover { background: var(--primary-dk); transform: translateY(-1px); }
-.export-menu {
-  position: absolute; right: 0; top: calc(100% + 4px);
-  background: var(--white); border: 1px solid var(--gray1); border-radius: var(--radius);
-  box-shadow: var(--shadow-md); min-width: 200px; z-index: 999;
-}
-.export-item {
-  padding: 10px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 9px;
-  color: var(--text2); border-bottom: 1px solid var(--gray1); transition: background .12s;
-}
-.export-item:last-child { border-bottom: none; }
-.export-item:hover { background: var(--primary-lt); color: var(--primary); }
 
 /* ── SECTION CARDS ── */
 .sec-card {
@@ -512,7 +516,7 @@ thead th {
 }
 tbody tr { border-bottom: 1px solid var(--gray1); transition: background .1s; }
 tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: #EAE6FF; }
+tbody tr:hover { background: #f5f3ff; }
 tbody tr.clickable-row { cursor: pointer; }
 tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 .row-num { color: var(--gray3); font-family: var(--mono); font-size: 11px; width: 32px; }
@@ -521,12 +525,12 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
   text-transform: uppercase; letter-spacing: 1.5px; padding: 10px 16px;
 }
 .group-hdr.grp-jkp td {
-  background: linear-gradient(90deg, #6C5CE7 0%, #9D8FF5 100%);
-  color: #fff; border-bottom: 2px solid #5849D1;
+  background: linear-gradient(90deg, #6C5CE7 0%, #9B8EF5 100%);
+  color: #fff; border-bottom: 2px solid #5549D4;
 }
 .group-hdr.grp-jkn td {
-  background: linear-gradient(90deg, #00B894 0%, #00CEC9 100%);
-  color: #fff; border-bottom: 2px solid #00967D;
+  background: linear-gradient(90deg, #00D4A0 0%, #00E8B5 100%);
+  color: #fff; border-bottom: 2px solid #00B88A;
 }
 .group-hdr.grp-ahli td {
   background: var(--body-bg);
@@ -680,15 +684,10 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 .fu-counter {
   background: var(--white); border: 1px solid var(--gray1);
   border-radius: var(--radius-lg); padding: 16px 20px; flex: 1; min-width: 150px;
-  text-align: center; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+  text-align: center; box-shadow: var(--shadow-sm);
 }
-.fu-counter::before {
-  content: ''; position: absolute; bottom: -10px; right: -10px;
-  width: 60px; height: 60px; border-radius: 50%;
-  background: var(--danger-lt); opacity: 0.5; pointer-events: none;
-}
-.fu-count { font-family: var(--mono); font-size: 32px; font-weight: 700; color: var(--danger); line-height: 1; position: relative; z-index: 1; }
-.fu-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 5px; position: relative; z-index: 1; }
+.fu-count { font-family: var(--mono); font-size: 32px; font-weight: 700; color: var(--danger); line-height: 1; }
+.fu-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 5px; }
 
 /* ── LOG ENTRIES ── */
 .log-entry {
@@ -962,15 +961,14 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 
   <!-- PAGE TOPBAR -->
   <div class="page-topbar">
-    <div class="topbar-left">
-      <button class="btn btn-primary btn-sm no-print" onclick="showPage('followup')">&#x1F514; FOLLOW UP</button>
+    <div class="topbar-left" id="topbar-left-area">
+      <!-- dynamic via showPage -->
     </div>
     <div class="topbar-center">
       <div class="topbar-title" id="page-title">DASHBOARD</div>
     </div>
     <div class="topbar-right no-print" id="topbar-actions">
       <button id="refresh-db-btn" class="btn btn-outline btn-sm" onclick="refreshFromSupabase()" title="Refresh data dari Supabase" style="font-size:12px;">🔄 Refresh Data</button>
-
     </div>
   </div>
 
@@ -1101,9 +1099,9 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
         <div class="kpi-val" id="yuran-kpi-total" style="font-size:22px;">—</div>
         <div class="kpi-sub" style="font-size:11px;">Jumlah Yuran Tahunan terkumpul</div>
       </div>
-      <div class="kpi-card" style="border-left:4px solid #5849D1;">
+      <div class="kpi-card" style="border-left:4px solid #1a3f7a;">
         <div class="kpi-label">KUTIPAN YURAN PENDAFTARAN</div>
-        <div class="kpi-val" id="yuran-kpi-daftar" style="font-size:22px;color:#5849D1;">—</div>
+        <div class="kpi-val" id="yuran-kpi-daftar" style="font-size:22px;color:#1a3f7a;">—</div>
         <div class="kpi-sub" style="font-size:11px;">Yuran pendaftaran (sekali sahaja)</div>
       </div>
     </div>
@@ -1466,7 +1464,7 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
           </select>
         </div>
         <div class="field-grp"><label class="field-label">Yuran Pendaftaran</label>
-          <div class="field-input" style="background:#EAE6FF;font-weight:700;color:#5849D1;font-size:13px;" id="fm-daftar-display">RM — (dikira auto mengikut Fasal)</div>
+          <div class="field-input" style="background:#f0f9ff;font-weight:700;color:#1a3f7a;font-size:13px;" id="fm-daftar-display">RM — (dikira auto mengikut Fasal)</div>
           <label class="field-label" style="margin-top:8px;">Status Yuran Tahunan 2025</label>
           <select class="field-input" id="fm-yuran">
             <option value="">Belum Bayar Yuran Tahunan</option>
@@ -1864,8 +1862,7 @@ async function triggerManualBackup() {
     if (error) throw error;
     addLog('Backup manual ke Supabase berjaya');
     await loadSupabaseBackups();
-    alert('✅ Backup berjaya!
-' + (data ? JSON.stringify(data) : ''));
+    alert('✅ Backup berjaya!\n' + (data ? JSON.stringify(data) : ''));
   } catch(e) {
     alert('⚠ Backup gagal: ' + e.message);
   } finally {
@@ -1992,23 +1989,15 @@ function showPage(id) {
   var pt = document.getElementById('page-title'); if(pt) pt.textContent = meta[0];
   var ps = document.getElementById('page-sub'); if(ps) ps.textContent = meta[1];
   var ta = document.getElementById('topbar-actions');
+  var tla = document.getElementById('topbar-left-area');
   if (ta) {
-    var exportPages = ['senarai','yuran','ssm','daerah','followup'];
-    if (exportPages.indexOf(id) !== -1) {
-      ta.innerHTML = '<div class="export-wrap" id="export-wrap-' + id + '">'
-        + '<button class="btn btn-export btn-sm" onclick="toggleExportMenu(this,event)">&#x1F4E4;&nbsp;EXPORT &nbsp;&#x25BE;</button>'
-        + '<div class="export-menu" style="display:none;">'
-        + '<div class="export-item" onclick="pageExport(\'' + id + '\',\'csv\')">&#x1F4CA;&nbsp; CSV / Excel</div>'
-        + '<div class="export-item" onclick="pageExport(\'' + id + '\',\'pdf\')">&#x1F4C4;&nbsp; PDF (A4)</div>'
-        + '<div class="export-item" onclick="pageExport(\'' + id + '\',\'image\')">&#x1F5BC;&nbsp; Imej (A4)</div>'
-        + '</div></div>'
-        + '<button id="refresh-db-btn" class="btn btn-outline btn-sm" onclick="refreshFromSupabase()" style="font-size:12px;">&#x1F504; Refresh</button>';
-    } else if (id === 'dashboard') {
-      ta.innerHTML = '<button class="btn btn-primary btn-sm" onclick="showPage(\'followup\')">&#x1F514;&nbsp;FOLLOW UP</button>';
+    if (id === 'dashboard') {
+      ta.innerHTML = '<button class="btn btn-outline btn-sm" onclick="showPage(\'followup\')">&#x1F514;&nbsp;FOLLOW UP</button>';
     } else {
       ta.innerHTML = '';
     }
   }
+  if (tla) { tla.innerHTML = ''; }
   if (id === 'backup') { renderBackupPage(); loadSupabaseBackups(); }
   if (id === 'admin') renderAdminPage();
   closeSidebar();
@@ -2128,10 +2117,10 @@ function openModal(id) {
   var tahunanRate = getYuranTahunan(m.fasal);
   var daftarRate  = getYuranDaftar(m.fasal);
   /* --- Yuran Pendaftaran block (one-time) --- */
-  fieldsHtml += '<div class="field-grp full" style="background:#EAE6FF;border-radius:8px;padding:14px;border:2px solid #bde0f7;margin-top:4px;">';
-  fieldsHtml += '<div style="font-size:11px;font-weight:900;color:#5849D1;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">&#x1F4CB; Yuran Pendaftaran (Sekali Sahaja)</div>';
+  fieldsHtml += '<div class="field-grp full" style="background:#f0f9ff;border-radius:8px;padding:14px;border:2px solid #bde0f7;margin-top:4px;">';
+  fieldsHtml += '<div style="font-size:11px;font-weight:900;color:#1a3f7a;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">&#x1F4CB; Yuran Pendaftaran (Sekali Sahaja)</div>';
   fieldsHtml += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">';
-  fieldsHtml += '<div><div class="field-label">Jumlah Bayaran</div><div style="font-weight:800;font-family:var(--mono);font-size:15px;color:#5849D1;">RM '+daftarRate+'</div></div>';
+  fieldsHtml += '<div><div class="field-label">Jumlah Bayaran</div><div style="font-weight:800;font-family:var(--mono);font-size:15px;color:#1a3f7a;">RM '+daftarRate+'</div></div>';
   fieldsHtml += '<div><div class="field-label">Status</div><div style="font-weight:800;font-size:13px;color:'+(m.yuranDaftarDibayar?'var(--success)':'var(--danger)')+';">'+(m.yuranDaftarDibayar?'✅ TELAH DIBAYAR':'⚠ BELUM DIBAYAR')+'</div></div>';
   fieldsHtml += '<div><div class="field-label">Fasal</div><div style="font-weight:700;font-family:var(--mono);font-size:13px;">'+val(m.fasal)+'</div></div>';
   fieldsHtml += '</div></div>';
@@ -2906,18 +2895,6 @@ function exportCurrentPage(fmt) {
 }
 
 // ── PER-PAGE EXPORT ──────────────────────────────────────
-function toggleExportMenu(btn, e) {
-  if (e) e.stopPropagation();
-  var menu = btn.parentNode.querySelector('.export-menu');
-  if (!menu) return;
-  var isOpen = menu.style.display !== 'none';
-  document.querySelectorAll('.export-menu').forEach(function(m){ m.style.display = 'none'; });
-  if (!isOpen) menu.style.display = 'block';
-}
-document.addEventListener('click', function() {
-  document.querySelectorAll('.export-menu').forEach(function(m){ m.style.display = 'none'; });
-});
-
 function togglePageExport(btn, e) {
   e.stopPropagation();
   var dd = btn.parentNode.querySelector('.page-export-dd');
@@ -2983,7 +2960,7 @@ function pageExport(pageId, fmt) {
     }
     wrapper.innerHTML =
       '<div style="font-family:sans-serif;margin-bottom:10px;">'
-      + '<h2 style="color:#5849D1;font-size:16px;margin:0;">DPMM Negeri Johor — ' + title + '</h2>'
+      + '<h2 style="color:#1a3f7a;font-size:16px;margin:0;">DPMM Negeri Johor — ' + title + '</h2>'
       + '<p style="color:#888;font-size:10px;margin-top:3px;">Dijana: ' + datestamp + '</p>'
       + '</div>'
       + pageEl.innerHTML;
@@ -3052,8 +3029,7 @@ function pageExportCSV(pageId) {
   if (rows.length > 1) {
     // Add BOM for Excel UTF-8
     var bom = '﻿';
-    downloadFile(filename, bom + rows.map(function(r){ return r.join(','); }).join('
-'), 'text/csv;charset=utf-8');
+    downloadFile(filename, bom + rows.map(function(r){ return r.join(','); }).join('\n'), 'text/csv;charset=utf-8');
     addLog('Eksport CSV: ' + pageId);
   } else {
     alert('Tiada data untuk dieksport.');
@@ -3136,7 +3112,7 @@ function exportPDF() {
   var styles = '';
   document.querySelectorAll('style').forEach(function(s){ styles += s.innerHTML; });
   var orgHeader = '<div style="text-align:center;margin-bottom:20px;border-bottom:3px solid #1a3f7a;padding-bottom:12px;">'
-    + '<div style="font-size:20px;font-weight:900;color:#5849D1;letter-spacing:1px;">DEWAN PERNIAGAAN MELAYU MALAYSIA</div>'
+    + '<div style="font-size:20px;font-weight:900;color:#1a3f7a;letter-spacing:1px;">DEWAN PERNIAGAAN MELAYU MALAYSIA</div>'
     + '<div style="font-size:14px;font-weight:700;color:#000;margin-top:4px;">NEGERI JOHOR</div>'
     + '<div style="font-size:11px;color:#666;margin-top:6px;">Dicetak: ' + dateStr + ' &nbsp;|&nbsp; Halaman: ' + pg.toUpperCase() + '</div></div>';
   var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DPMM_' + pg.toUpperCase() + '_' + dateStr.replace(/\//g,'-') + '</title>'
