@@ -471,11 +471,6 @@ input, select, textarea, button { font-family: var(--sans); }
   white-space: nowrap; box-shadow: 0 2px 10px rgba(108,92,231,.35);
 }
 .page-export-btn:hover { background: var(--primary-dk); transform: translateY(-1px); }
-.page-export-dd {
-  display: none; position: absolute; right: 0; top: calc(100% + 4px);
-  background: var(--white); border: 1px solid var(--gray1); border-radius: var(--radius);
-  box-shadow: var(--shadow-md); min-width: 190px; z-index: 999;
-}
 .page-export-dd.open { display: block; }
 .page-export-item {
   padding: 10px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 9px;
@@ -639,7 +634,7 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 .stat-bar { height: 100%; border-radius: 10px; background: var(--primary); }
 
 /* ── DISTRICT CARDS ── */
-.district-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 22px; }
+.district-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 22px; position: relative; z-index: 1; }
 .district-card {
   background: var(--white); border: 1px solid var(--gray1);
   border-radius: var(--radius-lg); padding: 12px 14px;
@@ -652,6 +647,23 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 .district-count { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--primary); margin: 6px 0; text-align: center; }
 .district-count-sm { font-family: var(--mono); font-size: 20px; font-weight: 800; color: var(--primary); text-align: center; margin: 4px 0; }
 .district-status { font-size: 12px; }
+
+/* Tidak Diketahui district card style */
+.district-card.unknown-district { border-left-color: var(--danger); }
+.district-card.unknown-district .district-name { color: var(--danger); }
+/* Red row highlight for Tidak Diketahui members */
+tr.row-unknown { background: #fff0f0 !important; }
+tr.row-unknown td { color: #c0392b !important; font-weight: 700 !important; }
+/* Red row highlight for unpaid yuran */
+tr.row-unpaid { background: #fff0f0 !important; }
+
+/* Fix page-export dropdown above district cards */
+.page-export-wrap { position: relative; display: inline-block; z-index: 500; }
+.page-export-dd {
+  display: none; position: absolute; right: 0; top: calc(100% + 4px);
+  background: var(--white); border: 1px solid var(--gray1); border-radius: var(--radius);
+  box-shadow: var(--shadow-md); min-width: 190px; z-index: 9000;
+}
 
 /* ── WA PREVIEW ── */
 .wa-preview { background: #e5ded8; border-radius: 10px; padding: 16px; }
@@ -674,9 +686,10 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 .tmpl-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb),.1); }
 
 /* ── SSM STATUS ── */
-.ssm-expiring { background: #fffbf0 !important; }
+.ssm-expiring { background: #fffbe6 !important; }
+.ssm-expiring td { color: #a0620a !important; font-weight: 700 !important; }
 .ssm-expired { background: #fce8e8 !important; }
-.ssm-expired td { color: var(--danger) !important; font-weight: 700; }
+.ssm-expired td { color: var(--danger) !important; font-weight: 700 !important; }
 .ssm-expired a { color: var(--danger) !important; }
 
 /* ── FOLLOW-UP COUNTERS ── */
@@ -974,19 +987,23 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 
   <!-- ══ DASHBOARD ══ -->
   <div id="page-dashboard" class="page active">
+    <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:10px;gap:6px;" class="no-print">
+      <span style="font-size:10px;color:var(--muted);font-family:var(--mono);">🕐 Dikemaskini:</span>
+      <span id="dash-last-updated" style="font-size:10px;font-weight:700;color:var(--primary);font-family:var(--mono);">—</span>
+    </div>
     <div class="kpi-grid kpi-4">
       <div class="kpi-card">
         <div class="kpi-label">Jumlah Ahli Berdaftar</div>
         <div class="kpi-val" id="kpi-total">—</div>
-        <div class="kpi-sub">Setakat 31 Disember 2025</div>
+        <div class="kpi-sub" id="kpi-total-sub">Setakat 31 Disember 2025</div>
       </div>
       <div class="kpi-card danger">
-        <div class="kpi-label">Belum Bayar Yuran 2025</div>
+        <div class="kpi-label" id="kpi-unpaid-label">Belum Bayar Yuran '+YURAN_YEAR+'</div>
         <div class="kpi-val" id="kpi-unpaid">—</div>
         <div class="kpi-sub" id="kpi-unpaid-pct">—</div>
       </div>
       <div class="kpi-card gold">
-        <div class="kpi-label">Telah Bayar Yuran 2025</div>
+        <div class="kpi-label" id="kpi-paid-label">Telah Bayar Yuran '+YURAN_YEAR+'</div>
         <div class="kpi-val" id="kpi-paid">—</div>
         <div class="kpi-sub" id="kpi-paid-pct">—</div>
       </div>
@@ -999,18 +1016,24 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
       <div class="sec-card">
-        <div class="sec-head"><h3>&#x1F4CA; Statistik Keanggotaan</h3></div>
+        <div class="sec-head" style="background:linear-gradient(90deg,var(--primary-lt),transparent);border-left:4px solid var(--primary);"><h3 style="color:var(--primary);font-size:14px;font-weight:900;">&#x1F4CA; Statistik Ahli</h3></div>
         <div class="sec-body" id="dash-stats"></div>
       </div>
       <div class="sec-card">
-        <div class="sec-head"><h3>&#x1F5FA; Ahli Mengikut Daerah</h3></div>
-        <div class="sec-body" id="district-summary-mini"></div>
+        <div class="sec-head" style="background:linear-gradient(90deg,var(--info-lt),transparent);border-left:4px solid var(--info);"><h3 style="color:var(--info);font-size:14px;font-weight:900;">&#x1F5FA; Ahli Mengikut Daerah</h3></div>
+        <div class="sec-body" style="padding:6px 14px;" id="district-summary-mini"></div>
       </div>
     </div>
 
-    <div class="sec-card">
-      <div class="sec-head"><h3>&#x26A0; Tindakan Segera Diperlukan</h3></div>
+    <div class="sec-card" style="margin-bottom:18px;">
+      <div class="sec-head" style="background:linear-gradient(90deg,var(--danger-lt),transparent);border-left:4px solid var(--danger);"><h3 style="color:var(--danger);font-size:14px;font-weight:900;">&#x26A0; Tindakan Segera Diperlukan</h3></div>
       <div class="sec-body" id="dash-alerts"></div>
+    </div>
+
+    <div style="text-align:center;padding:8px 0 16px;">
+      <button class="btn btn-primary" onclick="generateReport()" style="font-size:14px;padding:12px 32px;letter-spacing:0.5px;box-shadow:0 4px 20px rgba(108,92,231,.4);">
+        &#x1F4CB;&nbsp; GENERATE REPORT
+      </button>
     </div>
   </div>
 
@@ -1054,7 +1077,7 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
               <th>No. HP</th>
               <th>Daerah</th>
               <th>Fasal</th>
-              <th>Yuran 2025</th>
+              <th>Yuran <span class="yuran-year-label">2025</span></th>
             </tr>
           </thead>
           <tbody id="main-tbody"></tbody>
@@ -1085,17 +1108,17 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
   </div>
     <div class="kpi-grid kpi-4" style="margin-bottom:8px;">
       <div class="kpi-card danger">
-        <div class="kpi-label">BELUM BAYAR 2025</div>
+        <div class="kpi-label">BELUM BAYAR <span class="yuran-year-label">2025</span></div>
         <div class="kpi-val" id="yuran-kpi-unpaid">—</div>
         <div class="kpi-sub" style="font-size:11px;">Ahli belum jelaskan Yuran Tahunan</div>
       </div>
       <div class="kpi-card gold">
-        <div class="kpi-label">TELAH BAYAR 2025</div>
+        <div class="kpi-label">TELAH BAYAR <span class="yuran-year-label">2025</span></div>
         <div class="kpi-val" id="yuran-kpi-paid">—</div>
         <div class="kpi-sub" style="font-size:11px;">Ahli sudah jelaskan Yuran Tahunan</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">KUTIPAN YURAN TAHUNAN 2025</div>
+        <div class="kpi-label">KUTIPAN YURAN TAHUNAN <span class="yuran-year-label">2025</span></div>
         <div class="kpi-val" id="yuran-kpi-total" style="font-size:22px;">—</div>
         <div class="kpi-sub" style="font-size:11px;">Jumlah Yuran Tahunan terkumpul</div>
       </div>
@@ -1107,8 +1130,8 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
     </div>
     <div class="kpi-grid kpi-2" style="margin-bottom:18px;">
       <div class="kpi-card" style="padding:12px 18px;">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Kadar Pembayaran 2025</div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;position:relative;z-index:3;">Kadar Pembayaran <span class="yuran-year-label">2025</span></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px;position:relative;z-index:3;">
           <div class="kpi-val" id="yuran-kpi-pct" style="font-size:28px;">—</div>
           <div style="flex:1;background:#eee;border-radius:4px;height:10px;overflow:hidden;">
             <div id="yuran-progress-bar" style="height:100%;background:var(--primary);width:0%;border-radius:4px;transition:width .5s;"></div>
@@ -1116,8 +1139,8 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
         </div>
       </div>
       <div class="kpi-card" style="padding:12px 18px;">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Pecahan Mengikut Fasal</div>
-        <div id="yuran-fasal-breakdown" style="font-size:12px;"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px;position:relative;z-index:3;">Pecahan Mengikut Fasal</div>
+        <div id="yuran-fasal-breakdown" style="font-size:12px;position:relative;z-index:3;"></div>
       </div>
     </div>
     <div class="sec-card" style="margin-bottom:18px;">
@@ -1133,7 +1156,7 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
       <div class="sec-head"><h3>&#x2705; Ahli Telah Bayar Yuran</h3><span class="sec-count" id="paid-count">—</span></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>No. Ahli</th><th>Nama Syarikat / PIC</th><th>Tarikh Bayar 2025</th><th>Kaedah Bayar</th><th>Tahun Dibayar</th><th>Jumlah Terkumpul</th></tr></thead>
+          <thead><tr><th>#</th><th>No. Ahli</th><th>Nama Syarikat / PIC</th><th>Tarikh Bayar <span class="yuran-year-label">2025</span></th><th>Kaedah Bayar</th><th>Tahun Dibayar</th><th>Jumlah Terkumpul</th></tr></thead>
           <tbody id="paid-tbody"></tbody>
         </table>
       </div>
@@ -1465,10 +1488,10 @@ tbody td { padding: 11px 12px; vertical-align: middle; font-size: 13px; }
         </div>
         <div class="field-grp"><label class="field-label">Yuran Pendaftaran</label>
           <div class="field-input" style="background:#f0f9ff;font-weight:700;color:#1a3f7a;font-size:13px;" id="fm-daftar-display">RM — (dikira auto mengikut Fasal)</div>
-          <label class="field-label" style="margin-top:8px;">Status Yuran Tahunan 2025</label>
+          <label class="field-label" style="margin-top:8px;">Status Yuran Tahunan <span class="yuran-year-label">2025</span></label>
           <select class="field-input" id="fm-yuran">
             <option value="">Belum Bayar Yuran Tahunan</option>
-            <option value="paid">Telah Bayar Yuran Tahunan 2025</option>
+            <option value="paid">Telah Bayar Yuran Tahunan <span class="yuran-year-label">2025</span></option>
           </select>
         </div>
       </div>
@@ -1551,6 +1574,21 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var TABLE_NAME = 'AHLI DPMM JOHOR';
 
+// ── LIVE DATE / YEAR ──────────────────────────────────────
+// These update dynamically — always reflect current system date
+var CURRENT_YEAR = new Date().getFullYear();
+var YURAN_YEAR   = CURRENT_YEAR;   // year being tracked for yuran payments
+
+// Re-evaluate date-dependent globals at midnight (or when app wakes up)
+function refreshDateGlobals() {
+  var y = new Date().getFullYear();
+  if (y !== CURRENT_YEAR) {
+    CURRENT_YEAR = y;
+    YURAN_YEAR   = y;
+    renderAllPages();
+  }
+}
+
 let MEMBERS = []; // will be loaded from Supabase
 
 // Map Supabase row columns → app member object
@@ -1565,12 +1603,12 @@ function mapSupabaseRow(row) {
   // Build yuranTahunanHistory from available data
   var hist = [];
   if (tempoh > 0 && row.TARIKH_BAYARAN_2025) {
-    for (var yr = 2025 - tempoh + 1; yr <= 2025; yr++) {
+    for (var yr = YURAN_YEAR - tempoh + 1; yr <= YURAN_YEAR; yr++) {
       hist.push({
         tahun: yr,
         jumlah: perTahun,
-        tarikh: yr === 2025 ? (row.TARIKH_BAYARAN_2025 || '—') : '—',
-        kaedah: yr === 2025 ? (row.KAEDAH_BAYARAN || '—') : '—',
+        tarikh: yr === YURAN_YEAR ? (row.TARIKH_BAYARAN_2025 || '—') : '—',
+        kaedah: yr === YURAN_YEAR ? (row.KAEDAH_BAYARAN || '—') : '—',
         noResit: null
       });
     }
@@ -1908,7 +1946,7 @@ function renderBackupPage() {
   if (logList) logList.innerHTML = backupLogs.slice(0,10).map(function(l){ return '<div class="log-entry">' + l.date + ' — ' + l.type + ' oleh ' + l.user + '</div>'; }).join('') || '<div class="log-entry">Tiada rekod sandaran.</div>';
 }
 
-function isPaid(m) { return m.yuranTahunanHistory && m.yuranTahunanHistory.some(function(e){ return e.tahun===2025; }); }
+function isPaid(m) { return m.yuranTahunanHistory && m.yuranTahunanHistory.some(function(e){ return e.tahun === YURAN_YEAR; }); }
 var JENIS_LABEL = {TRAD:'Perdagangan','F&B':'F&B',CONST:'Pembinaan','P&S':'Produk & Servis',OTH:'Lain-lain',COSM:'Kosmetik'};
 var JAWATAN_ORDER = {YDP:1,TYDP:2,NYDP:3,SU:4,BK:5,AJK:6,AHLI:99};
 var JAWATAN_LABEL = {YDP:'Yang Dipertua',TYDP:'Timbalan YDP',NYDP:'Naib YDP',SU:'Setiausaha Kehormat',BK:'Bendahari Kehormat',AJK:'Ahli Jawatankuasa',AHLI:'Ahli'};
@@ -1961,6 +1999,17 @@ function updateClock() {
   setTimeout(updateClock, 1000);
 }
 setInterval(updateClock, 1000);
+
+// ── AUTO-REFRESH: re-render stats every 5 minutes to keep SSM status & counters live
+setInterval(function() {
+  if (typeof MEMBERS !== 'undefined' && MEMBERS.length > 0) {
+    refreshDateGlobals();   // handles midnight year rollover
+    renderAllPages();
+  }
+}, 5 * 60 * 1000);
+
+// Also check date change every minute (lightweight)
+setInterval(refreshDateGlobals, 60 * 1000);
 
 var PAGE_META = {
   dashboard: ['DASHBOARD',''],
@@ -2113,7 +2162,7 @@ function openModal(id) {
   fieldsHtml += '<div class="field-grp"><div class="field-label">Tarikh Luput SSM</div><div class="field-val mono" style="color:' + ssmColor + ';font-weight:700;">' + val(m.ssmDeadline) + ssmNote + '</div></div>';
   /* ── YURAN SECTION ── */
   var hist = (m.yuranTahunanHistory||[]).slice().sort(function(a,b){return b.tahun-a.tahun;});
-  var entry2025 = hist.find(function(e){return e.tahun===2025;}) || null;
+  var entry2025 = hist.find(function(e){return e.tahun===YURAN_YEAR;}) || null;
   var tahunanRate = getYuranTahunan(m.fasal);
   var daftarRate  = getYuranDaftar(m.fasal);
   /* --- Yuran Pendaftaran block (one-time) --- */
@@ -2131,7 +2180,7 @@ function openModal(id) {
   fieldsHtml += '<div><div class="field-label">Kadar / Tahun</div><div style="font-weight:800;font-family:var(--mono);font-size:15px;color:var(--primary);">RM '+tahunanRate+'</div></div>';
   fieldsHtml += '<div><div class="field-label">Bilangan Tahun Dibayar</div><div style="font-weight:800;font-family:var(--mono);font-size:15px;">'+hist.length+' Tahun</div></div>';
   fieldsHtml += '<div><div class="field-label">Jumlah Terkumpul</div><div style="font-weight:800;font-family:var(--mono);font-size:15px;color:var(--primary);">RM '+(m.totalTahunanDibayar||0)+'</div></div>';
-  fieldsHtml += '<div><div class="field-label">Status 2025</div><div style="font-weight:800;font-size:13px;color:'+statusColor+';">'+statusText+'</div></div>';
+  fieldsHtml += '<div><div class="field-label">Status ' + YURAN_YEAR + '</div><div style="font-weight:800;font-size:13px;color:'+statusColor+';">'+statusText+'</div></div>';
   fieldsHtml += '</div>';
   /* --- History table --- */
   if (hist.length > 0) {
@@ -2145,8 +2194,8 @@ function openModal(id) {
       +'<th style="padding:5px 8px;text-align:left;font-weight:700;font-size:11px;">No. Resit</th>'
       +'</tr></thead><tbody>';
     hist.forEach(function(e){
-      fieldsHtml += '<tr style="border-bottom:1px solid rgba(0,0,0,0.06);background:'+(e.tahun===2025?'rgba(115,103,240,0.06)':'transparent')+'">'
-        +'<td style="padding:5px 8px;font-weight:'+(e.tahun===2025?'800':'600')+';color:'+(e.tahun===2025?'var(--primary)':'inherit')+';font-family:var(--mono);">'+e.tahun+(e.tahun===2025?' ★':'')+'</td>'
+      fieldsHtml += '<tr style="border-bottom:1px solid rgba(0,0,0,0.06);background:'+(e.tahun===YURAN_YEAR?'rgba(115,103,240,0.06)':'transparent')+'">'
+        +'<td style="padding:5px 8px;font-weight:'+(e.tahun===YURAN_YEAR?'800':'600')+';color:'+(e.tahun===YURAN_YEAR?'var(--primary)':'inherit')+';font-family:var(--mono);">'+e.tahun+(e.tahun===YURAN_YEAR?' ★':'')+'</td>'
         +'<td style="padding:5px 8px;font-family:var(--mono);font-weight:700;">RM '+e.jumlah+'</td>'
         +'<td style="padding:5px 8px;font-family:var(--mono);">'+(e.tarikh||'—')+'</td>'
         +'<td style="padding:5px 8px;">'+(e.kaedah||'—')+'</td>'
@@ -2195,7 +2244,7 @@ function printContact(id) {
     + '<tr><td>Daerah</td><td>' + (m.daerah||'—') + '</td></tr>'
     + '<tr><td>No. SSM</td><td>' + (m.noSSM||'—') + '</td></tr>'
     + '<tr><td>Tarikh Luput SSM</td><td>' + (m.ssmDeadline||'—') + '</td></tr>'
-    + '<tr><td>Yuran 2025</td><td>' + (paid?'Telah Bayar (RM '+m.yuranTahun+')':'Belum Bayar') + '</td></tr>'
+    + '<tr><td>Yuran ' + YURAN_YEAR + '</td><td>' + (paid?'Telah Bayar (RM '+m.yuranTahun+')':'Belum Bayar') + '</td></tr>'
     + '</table><p style="margin-top:20px;font-size:11px;color:#999;">Dicetak: ' + new Date().toLocaleString('ms-MY') + '</p></body></html>');
   w.document.close(); w.print();
 }
@@ -2255,12 +2304,15 @@ function waCopyMsg() {
   addLog('Salin mesej WA: ' + (waCurrentMember?waCurrentMember.id:''));
 }
 
-var TEMPLATES = {
-  1: "Assalamualaikum / Selamat Sejahtera [NAMA PIC],\n\nSaya daripada Pihak Pengurusan *DEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR* ingin memaklumkan bahawa yuran keahlian tahunan bagi tahun 2025 perlu dijelaskan.\n\nNo. Ahli: [NO. AHLI]\nNama Syarikat: [NAMA SYARIKAT]\nJumlah Yuran: RM 50 (ENT) / RM 150 (SB)\n\nSila hantar slip pembayaran kepada kami selepas membuat bayaran.\n\nTerima kasih.\n\nSetiausaha Kehormat\nDEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR",
-  2: "Assalamualaikum [NAMA PIC],\n\nIni merupakan peringatan kali kedua berkaitan yuran keahlian bagi tahun 2025 bagi [NAMA SYARIKAT] (No. Ahli: [NO. AHLI]).\n\nSehingga kini, kami belum menerima sebarang bayaran atau maklum balas.\n\nMohon tindakan segera dalam tempoh 7 hari.\n\nTerima kasih.\n\nDEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR",
-  3: "NOTIS AKHIR - YURAN KEAHLIAN 2025\n\nKepada: [NAMA PIC]\nSyarikat: [NAMA SYARIKAT]\nNo. Ahli: [NO. AHLI]\n\nIni adalah notis akhir berkaitan tunggakan yuran keahlian bagi tahun 2025.\n\nKegagalan menjelaskan yuran mungkin mengakibatkan penggantungan keahlian.\n\nHubungi kami segera.\n\nDEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR",
-  4: "Assalamualaikum [NAMA PIC],\n\nKami ingin memaklumkan bahawa SSM syarikat anda [NAMA SYARIKAT] akan tamat tempoh pada [TARIKH LUPUT SSM].\n\nSila ambil tindakan segera untuk membaharui SSM anda di SSM Online (https://ezbiz.ssm.com.my).\n\nTerima kasih.\n\nSetiausaha Kehormat\nDEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR"
-};
+var TEMPLATES = {};
+function initTemplates() {
+  var y = YURAN_YEAR;
+  TEMPLATES[1] = "Assalamualaikum / Selamat Sejahtera [NAMA PIC],\n\nSaya daripada Pihak Pengurusan *DEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR* ingin memaklumkan bahawa yuran keahlian tahunan bagi tahun " + y + " perlu dijelaskan.\n\nNo. Ahli: [NO. AHLI]\nNama Syarikat: [NAMA SYARIKAT]\nJumlah Yuran: RM 50 (ENT) / RM 150 (SB)\n\nSila hantar slip pembayaran kepada kami selepas membuat bayaran.\n\nTerima kasih.\n\nSetiausaha Kehormat\nDEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR";
+  TEMPLATES[2] = "Assalamualaikum [NAMA PIC],\n\nIni merupakan peringatan kali kedua berkaitan yuran keahlian bagi tahun " + y + " bagi [NAMA SYARIKAT] (No. Ahli: [NO. AHLI]).\n\nSehingga kini, kami belum menerima sebarang bayaran atau maklum balas.\n\nMohon tindakan segera dalam tempoh 7 hari.\n\nTerima kasih.\n\nDEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR";
+  TEMPLATES[3] = "NOTIS AKHIR - YURAN KEAHLIAN " + y + "\n\nKepada: [NAMA PIC]\nSyarikat: [NAMA SYARIKAT]\nNo. Ahli: [NO. AHLI]\n\nIni adalah notis akhir berkaitan tunggakan yuran keahlian bagi tahun " + y + ".\n\nKegagalan menjelaskan yuran mungkin mengakibatkan penggantungan keahlian.\n\nHubungi kami segera.\n\nDEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR";
+  TEMPLATES[4] = "Assalamualaikum [NAMA PIC],\n\nKami ingin memaklumkan bahawa SSM syarikat anda [NAMA SYARIKAT] akan tamat tempoh pada [TARIKH LUPUT SSM].\n\nSila ambil tindakan segera untuk membaharui SSM anda di SSM Online (https://ezbiz.ssm.com.my).\n\nTerima kasih.\n\nSetiausaha Kehormat\nDEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR";
+}
+initTemplates();
 var editingTemplateNum = 1;
 
 function genWaMsg(m, n) {
@@ -2317,34 +2369,77 @@ function renderDashboard() {
   var ssmExp = MEMBERS.filter(function(m){ return ssmStatus(m.ssmDeadline)==='expired'; }).length;
   var ssmExpiring = MEMBERS.filter(function(m){ return ssmStatus(m.ssmDeadline)==='expiring'; }).length;
   var pct = total ? Math.round(paid/total*100) : 0;
-  function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+
+  function set(id, v) { var el=document.getElementById(id); if(el) el.textContent=v; }
   set('kpi-total', total);
   set('kpi-unpaid', unpaid);
   set('kpi-unpaid-pct', total ? Math.round(unpaid/total*100) + '% daripada jumlah ahli' : '');
   set('kpi-paid', paid);
   set('kpi-paid-pct', 'RM ' + totalRM.toLocaleString() + ' terkumpul');
   set('kpi-ssm', ssmExp + ssmExpiring);
-  set('kpi-ssm-sub', ssmExp + ' luput, ' + ssmExpiring + ' hampir luput');
-  // Charts
-  function setBar(id, pct) { var el=document.getElementById(id); if(el) el.style.width=pct+'%'; }
-  function setLbl(id, val) { set(id, val); }
+
+  // Update year-dependent labels to always show current year
+  set('kpi-unpaid-label', 'Belum Bayar Yuran ' + YURAN_YEAR);
+  set('kpi-paid-label', 'Telah Bayar Yuran ' + YURAN_YEAR);
+  set('kpi-total-sub', 'Setakat 31 Disember ' + YURAN_YEAR);
+
+  // Update all elements with class yuran-year-label
+  document.querySelectorAll('.yuran-year-label').forEach(function(el){ el.textContent = YURAN_YEAR; });
+
+  // Show last-updated timestamp
+  var nowStr = now.toLocaleString('ms-MY', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  set('dash-last-updated', nowStr);
+
+  // Build stat bars HTML and inject into dash-stats
+  var jTotal = jTRAD+jFB+jCONST+jPS+jOTH || 1;
   var mPct = total ? Math.round(male/total*100) : 0;
   var fPct = total ? Math.round(female/total*100) : 0;
-  setBar('bar-male', mPct); setLbl('lbl-male', male + ' (' + mPct + '%)');
-  setBar('bar-female', fPct); setLbl('lbl-female', female + ' (' + fPct + '%)');
   var ePct = total ? Math.round(ent/total*100) : 0;
   var sPct = total ? Math.round(sb/total*100) : 0;
-  setBar('bar-ent', ePct); setLbl('lbl-ent', ent + ' (' + ePct + '%)');
-  setBar('bar-sb', sPct); setLbl('lbl-sb', sb + ' (' + sPct + '%)');
-  var jTotal = jTRAD+jFB+jCONST+jPS+jOTH || 1;
-  setBar('bar-trad', Math.round(jTRAD/jTotal*100)); setLbl('lbl-trad', jTRAD);
-  setBar('bar-fb',   Math.round(jFB/jTotal*100));   setLbl('lbl-fb', jFB);
-  setBar('bar-const',Math.round(jCONST/jTotal*100)); setLbl('lbl-const', jCONST);
-  setBar('bar-ps',   Math.round(jPS/jTotal*100));   setLbl('lbl-ps', jPS);
-  setBar('bar-oth',  Math.round(jOTH/jTotal*100));  setLbl('lbl-oth', jOTH);
+
+  function statRow(label, count, pctVal, color) {
+    return '<div class="stat-item">'
+      + '<div class="stat-bar-row"><span>' + label + '</span><span style="color:'+color+';font-family:var(--mono);">' + count + ' <small style="color:var(--muted);font-size:11px;">(' + pctVal + '%)</small></span></div>'
+      + '<div class="stat-bar-wrap"><div class="stat-bar" style="width:'+pctVal+'%;background:'+color+';"></div></div>'
+      + '</div>';
+  }
+  function statCount(label, count, color) {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--gray1);">'
+      + '<span style="font-size:12.5px;font-weight:600;color:var(--text2);">' + label + '</span>'
+      + '<span style="font-family:var(--mono);font-weight:800;font-size:14px;color:'+color+';">' + count + '</span>'
+      + '</div>';
+  }
+
+  var statsHtml = '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;">Jantina</div>'
+    + statRow('Lelaki', male, mPct, 'var(--primary)')
+    + statRow('Wanita', female, fPct, 'var(--info)')
+    + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 0 10px;">Jenis Ahli</div>'
+    + statRow('Enterpris (ENT)', ent, ePct, 'var(--primary)')
+    + statRow('Sdn Bhd (SB)', sb, sPct, 'var(--success)')
+    + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 0 10px;">Jenis Perniagaan</div>'
+    + statCount('Perdagangan', jTRAD, 'var(--primary)')
+    + statCount('F&B', jFB, 'var(--warning)')
+    + statCount('Pembinaan', jCONST, 'var(--success)')
+    + statCount('Produk & Servis', jPS, 'var(--info)')
+    + statCount('Lain-lain / Kosmetik', jOTH, 'var(--muted)');
+
+  var dashStats = document.getElementById('dash-stats');
+  if (dashStats) dashStats.innerHTML = statsHtml;
+
   // Yuran progress bar
   var yb = document.getElementById('yuran-progress-bar'); if(yb) yb.style.width=pct+'%';
   var yl = document.getElementById('yuran-progress-label'); if(yl) yl.textContent=pct+'% ahli telah bayar';
+
+  // Dash alerts
+  var alerts = document.getElementById('dash-alerts');
+  if (alerts) {
+    var html = '';
+    if (unpaid > 0) html += '<div class="alert alert-red">&#x1F4B0; <strong>' + unpaid + ' ahli</strong> belum bayar yuran tahunan ' + YURAN_YEAR + '. <a href="#" onclick="showPage(\'yuran\');return false;" style="color:var(--danger);text-decoration:underline;">Lihat senarai →</a></div>';
+    if (ssmExp > 0) html += '<div class="alert alert-red">&#x1F4C5; <strong>' + ssmExp + ' SSM luput.</strong> Tindakan segera diperlukan. <a href="#" onclick="showPage(\'ssm\');return false;" style="color:var(--danger);text-decoration:underline;">Lihat senarai →</a></div>';
+    if (ssmExpiring > 0) html += '<div class="alert alert-gold">&#x26A0; <strong>' + ssmExpiring + ' SSM hampir luput</strong> dalam 180 hari. <a href="#" onclick="showPage(\'ssm\');return false;" style="color:#a0620a;text-decoration:underline;">Lihat senarai →</a></div>';
+    if (html === '') html = '<div class="alert alert-ok">&#x2705; Tiada tindakan segera diperlukan.</div>';
+    alerts.innerHTML = html;
+  }
 }
 
 function renderYuranPage() {
@@ -2390,7 +2485,7 @@ function renderYuranPage() {
   if (unpaidTbody) unpaidTbody.innerHTML = ump.map(function(m,i){
     var waBtn = m.hp ? '<button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openWAModal(\''+m.id+'\')">WA</button>' : badge('Tiada No.','badge-red');
     var rate = getYuranTahunan(m.fasal);
-    return '<tr class="clickable-row" onclick="openModal(\''+m.id+'\')">'+
+    return '<tr class="clickable-row row-unpaid" onclick="openModal(\''+m.id+'\')">'+
       '<td class="row-num">'+(i+1)+'</td>'+
       '<td><strong style="font-family:var(--mono);font-size:12px;">'+m.id+'</strong></td>'+
       '<td><strong style="font-size:13px;">'+val(m.namaSyarikat)+'</strong><br><span style="font-size:11px;color:#666;">'+val(m.namaPIC)+'</span></td>'+
@@ -2406,9 +2501,9 @@ function renderYuranPage() {
   var paidTbody = document.getElementById('paid-tbody');
   if (paidTbody) paidTbody.innerHTML = paidM.map(function(m,i){
     var hist = (m.yuranTahunanHistory||[]).slice().sort(function(a,b){return b.tahun-a.tahun;});
-    var entry2025 = hist.find(function(e){return e.tahun===2025;}) || {};
+    var entry2025 = hist.find(function(e){return e.tahun===YURAN_YEAR;}) || {};
     var histRows = hist.map(function(e){
-      return '<span style="display:inline-block;margin:1px 3px;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;background:'+(e.tahun===2025?'var(--primary-lt)':'#f0f0f0')+';color:'+(e.tahun===2025?'var(--primary)':'#555')+';">'+e.tahun+'</span>';
+      return '<span style="display:inline-block;margin:1px 3px;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;background:'+(e.tahun===YURAN_YEAR?'var(--primary-lt)':'#f0f0f0')+';color:'+(e.tahun===YURAN_YEAR?'var(--primary)':'#555')+';">'+e.tahun+'</span>';
     }).join('');
     return '<tr>'+
       '<td class="row-num">'+(i+1)+'</td>'+
@@ -2425,10 +2520,18 @@ function renderYuranPage() {
 function renderSSMPage() {
   var today = new Date(); today.setHours(0,0,0,0);
   var ssmM = MEMBERS.filter(function(m){ return m.ssmDeadline && m.ssmDeadline!=='-' && m.noSSM; });
-  ssmM.sort(function(a,b){
-    function pd(d){ var p=d.split('.'); return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])); }
+
+  // Sort by group: expired first, then expiring, then ok, within each group by date ascending
+  function pd(d){ var p=d.split('.'); return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])); }
+  var groupOrder = { expired: 0, expiring: 1, ok: 2 };
+  ssmM.sort(function(a, b) {
+    var sa = ssmStatus(a.ssmDeadline) || 'ok';
+    var sb = ssmStatus(b.ssmDeadline) || 'ok';
+    var go = (groupOrder[sa]||2) - (groupOrder[sb]||2);
+    if (go !== 0) return go;
     return pd(a.ssmDeadline) - pd(b.ssmDeadline);
   });
+
   var exp=0, expiring=0, ok=0;
   ssmM.forEach(function(m){
     var st = ssmStatus(m.ssmDeadline);
@@ -2442,9 +2545,9 @@ function renderSSMPage() {
   var tbody = document.getElementById('ssm-tbody');
   if (tbody) tbody.innerHTML = ssmM.map(function(m,i){
     var st = ssmStatus(m.ssmDeadline);
-    var rowCls = st==='expired'?'ssm-expired':st==='expiring'?'ssm-expiring':'';
-    var stBadge = st==='expired'?badge('LUPUT','badge-unpaid'):st==='expiring'?badge('HAMPIR LUPUT','badge-gold'):badge('SAH','badge-ok');
-    return '<tr class="' + rowCls + ' clickable-row" onclick="openModal(\'' + m.id + '\')">'
+    var rowCls = st==='expired' ? 'ssm-expired clickable-row' : st==='expiring' ? 'ssm-expiring clickable-row' : 'clickable-row';
+    var stBadge = st==='expired' ? badge('LUPUT','badge-unpaid') : st==='expiring' ? badge('HAMPIR LUPUT','badge-gold') : badge('SAH','badge-ok');
+    return '<tr class="' + rowCls + '" onclick="openModal(\'' + m.id + '\')">'
       + '<td class="row-num">' + (i+1) + '</td>'
       + '<td><strong>' + (m.namaSyarikat||'—') + '</strong><br><span style="font-size:11px;color:#555;font-style:italic;">' + (m.namaPIC||'—') + '</span></td>'
       + '<td>' + (m.noSSM||'—') + '</td>'
@@ -2522,30 +2625,45 @@ function copyMsgForMember(id, tmpl) {
 function renderDistrictPage() {
   var grid = document.getElementById('district-grid');
   if (!grid) return;
-  grid.innerHTML = districtOrder.map(function(d){
+
+  // Sort: Tidak Diketahui always last
+  var orderedDistricts = districtOrder.slice().sort(function(a, b) {
+    if (a === 'Tidak Diketahui') return 1;
+    if (b === 'Tidak Diketahui') return -1;
+    return 0;
+  });
+
+  grid.innerHTML = orderedDistricts.map(function(d){
     var mems = districts[d];
     var un = mems.filter(function(m){ return !isPaid(m); }).length;
     var paid = mems.length - un;
-    return '<div class="district-card" onclick="scrollToDistrict(\'' + d + '\')">'
+    var isUnknown = d === 'Tidak Diketahui';
+    return '<div class="district-card' + (isUnknown ? ' unknown-district' : '') + '" onclick="scrollToDistrict(\'' + d + '\')">'
       + '<div class="district-name">' + d + '</div>'
-      + '<div class="district-count-sm" style="font-size:18px;font-weight:800;font-family:var(--mono);color:var(--primary);text-align:center;">' + mems.length + '</div>'
+      + '<div class="district-count-sm" style="font-size:18px;font-weight:800;font-family:var(--mono);color:' + (isUnknown ? 'var(--danger)' : 'var(--primary)') + ';text-align:center;">' + mems.length + '</div>'
       + '<div class="district-status">'
       + '<span style="color:var(--success);font-size:10px;font-weight:700;">' + paid + ' bayar</span>'
       + (un>0?' &nbsp;<span style="color:var(--danger);font-size:10px;font-weight:700;">'+un+' belum</span>':'')
       + '</div>'
       + '</div>';
   }).join('');
+
   // Render district tables
   var tables = document.getElementById('district-tables');
   if (!tables) return;
-  tables.innerHTML = districtOrder.map(function(d){
+  tables.innerHTML = orderedDistricts.map(function(d){
     var mems = districts[d];
+    var isUnknown = d === 'Tidak Diketahui';
+    var headStyle = isUnknown ? 'background:var(--danger-lt);border-left:4px solid var(--danger);' : '';
     return '<div class="sec-card" id="dist-' + d.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'') + '" style="margin-bottom:18px;">'
-      + '<div class="sec-head"><h3 style="font-size:13px;">' + d + '<span style="font-weight:400;color:#888;font-size:11px;margin-left:8px;">(' + mems.length + ' ahli)</span></h3></div>'
+      + '<div class="sec-head" style="' + headStyle + '"><h3 style="font-size:13px;color:' + (isUnknown?'var(--danger)':'inherit') + ';">'
+      + (isUnknown ? '⚠ ' : '') + d
+      + '<span style="font-weight:400;color:#888;font-size:11px;margin-left:8px;">(' + mems.length + ' ahli)</span></h3></div>'
       + '<div class="sec-body" style="padding:0">'
       + '<table class="data-table"><thead><tr><th>#</th><th>ID</th><th>NAMA</th><th>JAWATAN</th><th>YURAN</th></tr></thead><tbody>'
       + mems.map(function(m,i){
-          return '<tr class="clickable-row" onclick="openModal(\'' + m.id + '\')">'
+          var rowCls = isUnknown ? 'clickable-row row-unknown' : 'clickable-row';
+          return '<tr class="' + rowCls + '" onclick="openModal(\'' + m.id + '\')">'
             + '<td class="row-num">' + (i+1) + '</td>'
             + '<td style="font-size:10px">' + m.id + '</td>'
             + '<td><strong>' + (m.namaSyarikat||'—') + '</strong><br><small style="color:#666">' + (m.namaPIC||'') + '</small></td>'
@@ -2566,14 +2684,21 @@ function scrollToDistrict(d) {
 function renderDistrictMini() {
   var div = document.getElementById('district-summary-mini');
   if (!div) return;
-  div.innerHTML = districtOrder.map(function(d){
+
+  // Sort: Tidak Diketahui always last
+  var ordered = districtOrder.slice().sort(function(a, b) {
+    if (a === 'Tidak Diketahui') return 1;
+    if (b === 'Tidak Diketahui') return -1;
+    return 0;
+  });
+
+  div.innerHTML = ordered.map(function(d) {
     var mems = districts[d];
-    var un = mems.filter(function(m){ return !isPaid(m); }).length;
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray1);">'
-      + '<span style="font-size:13px;font-weight:700;">' + d + '</span>'
-      + '<span style="display:flex;gap:8px;align-items:center;"><span style="font-family:var(--mono);font-weight:900;font-size:14px;">' + mems.length + '</span>'
-      + (un>0?'<span style="font-family:var(--mono);font-size:11px;color:var(--crimson);font-weight:800;">-' + un + '</span>':'')
-      + '</span></div>';
+    var isUnknown = d === 'Tidak Diketahui';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--gray1);">'
+      + '<span style="font-size:12.5px;font-weight:700;color:' + (isUnknown ? 'var(--danger)' : 'var(--text)') + ';">' + d + '</span>'
+      + '<span style="font-family:var(--mono);font-weight:900;font-size:13px;color:' + (isUnknown ? 'var(--danger)' : 'var(--primary)') + ';">' + mems.length + '</span>'
+      + '</div>';
   }).join('');
 }
 
@@ -2600,7 +2725,7 @@ function saveMember() {
   var tahunanRate = getYuranTahunan(fasal);
   var now2 = new Date();
   var todayStr = String(now2.getDate()).padStart(2,'0')+'.'+String(now2.getMonth()+1).padStart(2,'0')+'.'+now2.getFullYear();
-  var hist = paidTahunan ? [{tahun:2025, jumlah:tahunanRate, tarikh:todayStr, kaedah:'BANK TF', noResit:null}] : [];
+  var hist = paidTahunan ? [{tahun:YURAN_YEAR, jumlah:tahunanRate, tarikh:todayStr, kaedah:'BANK TF', noResit:null}] : [];
   MEMBERS.push({
     id: id,
     jawatan: document.getElementById('fm-jawatan').value,
@@ -2894,6 +3019,256 @@ function exportCurrentPage(fmt) {
   else if (fmt === 'image') exportImage();
 }
 
+// ── GENERATE REPORT ─────────────────────────────────────
+function generateReport() {
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('ms-MY', {day:'2-digit', month:'long', year:'numeric'});
+  var timeStr = now.toLocaleTimeString('ms-MY', {hour:'2-digit', minute:'2-digit'});
+
+  // ── collect data ──
+  var total    = MEMBERS.length;
+  var paidM    = paidMembers();
+  var unpaidM  = unpaidMembers();
+  var paid     = paidM.length;
+  var unpaid   = unpaidM.length;
+  var pct      = total ? Math.round(paid / total * 100) : 0;
+  var totalRM  = 0;
+  paidM.forEach(function(m){ totalRM += parseFloat(m.yuranTahunanRate) || 0; });
+  var totalDaftar = 0;
+  MEMBERS.forEach(function(m){ if (m.yuranDaftarDibayar) totalDaftar += parseFloat(m.yuranDaftar) || 0; });
+
+  var male   = MEMBERS.filter(function(m){ return m.jantina === 'L'; }).length;
+  var female = MEMBERS.filter(function(m){ return m.jantina === 'W'; }).length;
+  var ent    = MEMBERS.filter(function(m){ return m.status === 'ENT'; }).length;
+  var sb     = MEMBERS.filter(function(m){ return m.status === 'SB'; }).length;
+
+  var jTRAD  = MEMBERS.filter(function(m){ return m.jenis === 'TRAD'; }).length;
+  var jFB    = MEMBERS.filter(function(m){ return m.jenis === 'F&B'; }).length;
+  var jCONST = MEMBERS.filter(function(m){ return m.jenis === 'CONST'; }).length;
+  var jPS    = MEMBERS.filter(function(m){ return m.jenis === 'P&S'; }).length;
+  var jOTH   = MEMBERS.filter(function(m){ return m.jenis === 'OTH' || m.jenis === 'COSM'; }).length;
+
+  var ssmExp      = MEMBERS.filter(function(m){ return ssmStatus(m.ssmDeadline) === 'expired'; }).length;
+  var ssmExpiring = MEMBERS.filter(function(m){ return ssmStatus(m.ssmDeadline) === 'expiring'; }).length;
+  var ssmOk       = MEMBERS.filter(function(m){ return ssmStatus(m.ssmDeadline) === 'ok'; }).length;
+
+  // fasal breakdown
+  var fasalGroups = {};
+  MEMBERS.forEach(function(m){
+    var f = m.fasal || '?';
+    if (!fasalGroups[f]) fasalGroups[f] = { paid: 0, total: 0, rate: getYuranTahunan(f) };
+    fasalGroups[f].total++;
+    if (isPaid(m)) fasalGroups[f].paid++;
+  });
+
+  // district breakdown — Tidak Diketahui last
+  var orderedDists = districtOrder.slice().sort(function(a, b){
+    if (a === 'Tidak Diketahui') return 1;
+    if (b === 'Tidak Diketahui') return -1;
+    return 0;
+  });
+
+  // unpaid list (top 20)
+  var unpaidTop = unpaidM.slice(0, 20);
+
+  // SSM expired list (top 20)
+  var ssmList = MEMBERS.filter(function(m){
+    var st = ssmStatus(m.ssmDeadline);
+    return st === 'expired' || st === 'expiring';
+  }).sort(function(a, b){
+    var order = { expired: 0, expiring: 1 };
+    return (order[ssmStatus(a.ssmDeadline)] || 2) - (order[ssmStatus(b.ssmDeadline)] || 2);
+  }).slice(0, 20);
+
+  // ── helpers ──
+  function pbar(pctVal, color) {
+    return '<div style="background:#eee;border-radius:4px;height:8px;width:100%;margin-top:3px;">'
+      + '<div style="height:100%;border-radius:4px;background:' + color + ';width:' + pctVal + '%;"></div></div>';
+  }
+  function kpiBox(label, val, sub, color) {
+    return '<div style="background:' + color + ';border-radius:10px;padding:14px 18px;text-align:center;">'
+      + '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:#555;margin-bottom:4px;">' + label + '</div>'
+      + '<div style="font-size:26px;font-weight:900;font-family:monospace;color:#1a1a2e;">' + val + '</div>'
+      + '<div style="font-size:10px;color:#777;margin-top:2px;">' + sub + '</div>'
+      + '</div>';
+  }
+  function sectionTitle(icon, title, color) {
+    return '<div style="display:flex;align-items:center;gap:8px;border-left:5px solid ' + color + ';padding:8px 14px;background:' + color + '18;margin:20px 0 10px;border-radius:0 6px 6px 0;">'
+      + '<span style="font-size:16px;">' + icon + '</span>'
+      + '<span style="font-size:14px;font-weight:900;color:' + color + ';letter-spacing:0.4px;">' + title.toUpperCase() + '</span>'
+      + '</div>';
+  }
+  function trow(cells, isHead) {
+    var tag = isHead ? 'th' : 'td';
+    return '<tr>' + cells.map(function(c){ return '<' + tag + '>' + (c || '—') + '</' + tag + '>'; }).join('') + '</tr>';
+  }
+
+  // ── build district rows ──
+  var distRows = orderedDists.map(function(d){
+    var ms = districts[d];
+    var un = ms.filter(function(m){ return !isPaid(m); }).length;
+    var pd2 = ms.length - un;
+    var p = ms.length ? Math.round(pd2 / ms.length * 100) : 0;
+    var isUnk = d === 'Tidak Diketahui';
+    return '<tr' + (isUnk ? ' style="background:#fff0f0;"' : '') + '>'
+      + '<td style="font-weight:700;' + (isUnk ? 'color:#c0392b;' : '') + '">' + d + '</td>'
+      + '<td style="text-align:center;font-family:monospace;font-weight:800;">' + ms.length + '</td>'
+      + '<td style="text-align:center;color:#16a085;font-weight:700;">' + pd2 + '</td>'
+      + '<td style="text-align:center;color:#c0392b;font-weight:700;">' + un + '</td>'
+      + '<td style="min-width:80px;">' + pbar(p, '#00D4A0') + '</td>'
+      + '</tr>';
+  }).join('');
+
+  // ── build fasal rows ──
+  var fasalRows = Object.keys(fasalGroups).sort().map(function(f){
+    var g = fasalGroups[f];
+    var p2 = g.total ? Math.round(g.paid / g.total * 100) : 0;
+    var estimated = g.total * g.rate;
+    var collected = g.paid * g.rate;
+    return '<tr>'
+      + '<td style="font-weight:700;">' + f + '</td>'
+      + '<td style="text-align:center;">' + g.total + '</td>'
+      + '<td style="text-align:center;color:#16a085;">' + g.paid + '</td>'
+      + '<td style="text-align:center;color:#c0392b;">' + (g.total - g.paid) + '</td>'
+      + '<td style="font-family:monospace;text-align:right;">RM ' + g.rate + '</td>'
+      + '<td style="font-family:monospace;text-align:right;color:#6C5CE7;font-weight:700;">RM ' + collected.toLocaleString() + '</td>'
+      + '<td style="text-align:center;font-size:10px;">' + pbar(p2, '#6C5CE7') + p2 + '%</td>'
+      + '</tr>';
+  }).join('');
+
+  // ── build unpaid rows ──
+  var unpaidRows = unpaidTop.map(function(m, i){
+    return '<tr>'
+      + '<td style="text-align:center;">' + (i+1) + '</td>'
+      + '<td style="font-family:monospace;font-size:10px;">' + m.id + '</td>'
+      + '<td style="font-weight:700;">' + (m.namaSyarikat || '—') + '</td>'
+      + '<td>' + (m.namaPIC || '—') + '</td>'
+      + '<td>' + (m.daerah || '—') + '</td>'
+      + '<td style="font-family:monospace;text-align:right;font-weight:800;color:#c0392b;">RM ' + getYuranTahunan(m.fasal) + '</td>'
+      + '<td style="font-family:monospace;">' + (m.hp || '—') + '</td>'
+      + '</tr>';
+  }).join('');
+
+  // ── build SSM rows ──
+  var ssmRows = ssmList.map(function(m, i){
+    var st = ssmStatus(m.ssmDeadline);
+    var bg = st === 'expired' ? '#fce8e8' : '#fffbe6';
+    var clr = st === 'expired' ? '#c0392b' : '#a0620a';
+    var label = st === 'expired' ? '⛔ LUPUT' : '⚠ HAMPIR LUPUT';
+    return '<tr style="background:' + bg + ';">'
+      + '<td style="text-align:center;">' + (i+1) + '</td>'
+      + '<td style="font-weight:700;color:' + clr + ';">' + (m.namaSyarikat || '—') + '</td>'
+      + '<td>' + (m.namaPIC || '—') + '</td>'
+      + '<td style="font-family:monospace;">' + (m.noSSM || '—') + '</td>'
+      + '<td style="font-family:monospace;">' + (m.ssmDeadline || '—') + '</td>'
+      + '<td style="font-weight:800;color:' + clr + ';">' + label + '</td>'
+      + '</tr>';
+  }).join('');
+
+  // ── assemble HTML ──
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8">'
+    + '<title>Laporan DPMM Negeri Johor — ' + dateStr + '</title>'
+    + '<style>'
+    + '@page { size: A4 portrait; margin: 14mm 16mm; }'
+    + 'body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11px; color: #1a1a2e; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }'
+    + 'h1,h2,h3 { margin: 0; }'
+    + 'table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 4px; }'
+    + 'th { background: #1a3f7a; color: #fff; padding: 6px 8px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; }'
+    + 'td { padding: 5px 8px; border-bottom: 1px solid #eee; }'
+    + 'tr:nth-child(even) td { background: #f9f9fb; }'
+    + '.cover { background: linear-gradient(135deg,#6C5CE7,#5549D4); color: #fff; padding: 28px 24px 22px; border-radius: 10px; margin-bottom: 22px; page-break-inside: avoid; }'
+    + '.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 6px; page-break-inside: avoid; }'
+    + '.sec { page-break-inside: avoid; margin-bottom: 18px; }'
+    + '.footer { font-size: 9px; color: #aaa; text-align: center; margin-top: 24px; border-top: 1px solid #eee; padding-top: 8px; }'
+    + '@media print { .no-print { display: none; } }'
+    + '</style></head><body>'
+
+    // cover
+    + '<div class="cover">'
+    + '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.8;margin-bottom:6px;">DPMM NEGERI JOHOR</div>'
+    + '<h1 style="font-size:22px;font-weight:900;margin-bottom:6px;">LAPORAN RINGKASAN AHLI</h1>'
+    + '<div style="font-size:12px;opacity:.85;">Dijana pada: ' + dateStr + ' &nbsp;|&nbsp; ' + timeStr + '</div>'
+    + '<div style="display:flex;gap:32px;margin-top:16px;">'
+    + '<div><div style="font-size:10px;opacity:.7;text-transform:uppercase;">Jumlah Ahli</div><div style="font-size:28px;font-weight:900;font-family:monospace;">' + total + '</div></div>'
+    + '<div><div style="font-size:10px;opacity:.7;text-transform:uppercase;">Bayar Yuran '+YURAN_YEAR+'</div><div style="font-size:28px;font-weight:900;font-family:monospace;color:#00D4A0;">' + paid + '</div></div>'
+    + '<div><div style="font-size:10px;opacity:.7;text-transform:uppercase;">Belum Bayar</div><div style="font-size:28px;font-weight:900;font-family:monospace;color:#FF6B6B;">' + unpaid + '</div></div>'
+    + '<div><div style="font-size:10px;opacity:.7;text-transform:uppercase;">Kutipan Yuran</div><div style="font-size:20px;font-weight:900;font-family:monospace;">RM ' + totalRM.toLocaleString() + '</div></div>'
+    + '</div>'
+    + '</div>'
+
+    // 4 KPI boxes
+    + '<div class="kpi-row">'
+    + kpiBox('Ahli Berdaftar', total, 'Keseluruhan', '#EEE9FD')
+    + kpiBox('Bayar Yuran', paid, pct + '% kadar pembayaran', '#E0FBF5')
+    + kpiBox('Belum Bayar', unpaid, (100-pct) + '% belum selesai', '#FFEAEA')
+    + kpiBox('SSM Kritikal', ssmExp + ssmExpiring, ssmExp + ' luput · ' + ssmExpiring + ' hampir luput', '#FFF4E6')
+    + '</div>'
+
+    // section 1 – keanggotaan
+    + '<div class="sec">'
+    + sectionTitle('📊', 'Statistik Ahli', '#6C5CE7')
+    + '<table><thead><tr><th>Kategori</th><th>Jumlah</th><th>%</th><th>Pecahan</th></tr></thead><tbody>'
+    + '<tr><td>Lelaki</td><td>' + male + '</td><td>' + (total?Math.round(male/total*100):0) + '%</td><td>' + pbar(total?Math.round(male/total*100):0,'#6C5CE7') + '</td></tr>'
+    + '<tr><td>Wanita</td><td>' + female + '</td><td>' + (total?Math.round(female/total*100):0) + '%</td><td>' + pbar(total?Math.round(female/total*100):0,'#00D4C5') + '</td></tr>'
+    + '<tr style="background:#f0f0ff;"><td><strong>Enterpris (ENT 6.2.1)</strong></td><td>' + ent + '</td><td>' + (total?Math.round(ent/total*100):0) + '%</td><td>' + pbar(total?Math.round(ent/total*100):0,'#6C5CE7') + '</td></tr>'
+    + '<tr style="background:#f0fff8;"><td><strong>Sdn Bhd (SB 6.2.4)</strong></td><td>' + sb + '</td><td>' + (total?Math.round(sb/total*100):0) + '%</td><td>' + pbar(total?Math.round(sb/total*100):0,'#00D4A0') + '</td></tr>'
+    + '<tr><td>Perdagangan (TRAD)</td><td>' + jTRAD + '</td><td>—</td><td></td></tr>'
+    + '<tr><td>F&B</td><td>' + jFB + '</td><td>—</td><td></td></tr>'
+    + '<tr><td>Pembinaan (CONST)</td><td>' + jCONST + '</td><td>—</td><td></td></tr>'
+    + '<tr><td>Produk & Servis (P&S)</td><td>' + jPS + '</td><td>—</td><td></td></tr>'
+    + '<tr><td>Lain-lain / Kosmetik</td><td>' + jOTH + '</td><td>—</td><td></td></tr>'
+    + '</tbody></table>'
+    + '</div>'
+
+    // section 2 – daerah
+    + '<div class="sec">'
+    + sectionTitle('🗺', 'Ahli Mengikut Daerah', '#00D4C5')
+    + '<table><thead><tr><th>Daerah</th><th style="text-align:center;">Jumlah</th><th style="text-align:center;">Bayar</th><th style="text-align:center;">Belum</th><th>Status Yuran</th></tr></thead><tbody>'
+    + distRows
+    + '</tbody></table>'
+    + '</div>'
+
+    // section 3 – yuran fasal
+    + '<div class="sec">'
+    + sectionTitle('💰', 'Pecahan Yuran Mengikut Fasal', '#FFA94D')
+    + '<table><thead><tr><th>Fasal</th><th style="text-align:center;">Jumlah</th><th style="text-align:center;">Bayar</th><th style="text-align:center;">Belum</th><th style="text-align:right;">Kadar/Thn</th><th style="text-align:right;">Kutipan</th><th>%</th></tr></thead><tbody>'
+    + fasalRows
+    + '<tr style="background:#EEE9FD;font-weight:900;"><td colspan="5">JUMLAH KESELURUHAN KUTIPAN YURAN TAHUNAN ' + YURAN_YEAR + '</td><td style="text-align:right;font-family:monospace;color:#6C5CE7;">RM ' + totalRM.toLocaleString() + '</td><td></td></tr>'
+    + '<tr style="background:#E0FBF5;font-weight:900;"><td colspan="5">JUMLAH KESELURUHAN KUTIPAN YURAN PENDAFTARAN</td><td style="text-align:right;font-family:monospace;color:#00D4A0;">RM ' + totalDaftar.toLocaleString() + '</td><td></td></tr>'
+    + '</tbody></table>'
+    + '</div>'
+
+    // section 4 – unpaid
+    + (unpaidTop.length > 0
+      ? '<div class="sec">'
+        + sectionTitle('⚠', 'Senarai Ahli Belum Bayar Yuran '+YURAN_YEAR+'' + (unpaidM.length > 20 ? ' (Top 20 daripada ' + unpaidM.length + ')' : ''), '#FF6B6B')
+        + '<table><thead><tr><th>#</th><th>No. Ahli</th><th>Nama Syarikat</th><th>Nama PIC</th><th>Daerah</th><th style="text-align:right;">Yuran</th><th>No. HP</th></tr></thead><tbody>'
+        + unpaidRows
+        + '</tbody></table>'
+        + '</div>'
+      : '')
+
+    // section 5 – SSM
+    + '<div class="sec">'
+    + sectionTitle('📅', 'Status SSM — Perlu Tindakan' + (ssmList.length === 0 ? ' (Tiada)' : ''), '#FF6B6B')
+    + (ssmList.length > 0
+      ? '<table><thead><tr><th>#</th><th>Nama Syarikat</th><th>Nama PIC</th><th>No. SSM</th><th>Tarikh Luput</th><th>Status</th></tr></thead><tbody>' + ssmRows + '</tbody></table>'
+      : '<div style="padding:12px;background:#E0FBF5;border-radius:6px;font-size:12px;color:#00A87A;font-weight:700;">✅ Tiada SSM yang luput atau hampir luput.</div>')
+    + '</div>'
+
+    + '<div class="footer">Laporan ini dijana secara automatik oleh Sistem Pengurusan Ahli DPMM Negeri Johor &nbsp;|&nbsp; ' + dateStr + ' ' + timeStr + '</div>'
+    + '</body></html>';
+
+  // open in new tab and trigger print
+  var win = window.open('', '_blank');
+  if (!win) { alert('Sila benarkan pop-up untuk mencetak laporan.'); return; }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); }, 600);
+  addLog('Generate Report: ' + dateStr);
+}
+
 // ── PER-PAGE EXPORT ──────────────────────────────────────
 function togglePageExport(btn, e) {
   e.stopPropagation();
@@ -2924,33 +3299,60 @@ function pageExport(pageId, fmt) {
   var datestamp = new Date().toLocaleString('ms-MY');
 
   if (fmt === 'pdf' || fmt === 'image') {
-    // Inject a temporary print style that shows only this page
     var styleId = '_dpmm_print_style';
     var old = document.getElementById(styleId);
     if (old) old.remove();
 
-    var mediaType = fmt === 'image' ? 'print' : 'print';
+    var isLandscape = (pageId === 'senarai');
     var printStyle = document.createElement('style');
     printStyle.id = styleId;
-    printStyle.innerHTML = [
+    var rules = [
       '@media print {',
       '  body > * { display: none !important; }',
       '  #_dpmm_print_wrapper { display: block !important; }',
-      '  @page { size: A4 portrait; margin: 12mm; }',
+      isLandscape
+        ? '  @page { size: A4 landscape; margin: 8mm 10mm; }'
+        : '  @page { size: A4 portrait; margin: 12mm; }',
       '  .no-print, .page-export-wrap, button, .modal-overlay { display: none !important; }',
-      '  table { width: 100%; border-collapse: collapse; page-break-inside: auto; }',
-      '  th, td { border: 1px solid #ccc; padding: 4px 7px; font-size: 10px; }',
-      '  thead { background: #1a3f7a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
-      '  .badge { padding: 1px 5px; border-radius: 3px; font-size: 9px; }',
-      '  .kpi-grid { display: grid !important; }',
-      '  .kpi-card { break-inside: avoid; border: 1px solid #ccc; }',
-      '  .district-card { break-inside: avoid; }',
-      '  .sec-card { break-inside: avoid; margin-bottom: 10px; }',
-      '}'
-    ].join('\n');
+    ];
+
+    if (isLandscape) {
+      rules = rules.concat([
+        '  table { width: 100%; border-collapse: collapse; page-break-inside: auto; }',
+        '  th { background: #1a3f7a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 3px 5px; font-size: 8px; font-weight: 700; text-transform: uppercase; border: 1px solid #ccc; }',
+        '  td { border: 1px solid #ddd; padding: 3px 5px; font-size: 8px; line-height: 1.3; }',
+        '  .badge { padding: 1px 4px; border-radius: 3px; font-size: 7px; font-weight: 700; }',
+        '  .row-num { width: 18px; font-size: 7px; }',
+        '  .group-hdr td { font-size: 8px !important; padding: 4px 6px !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+        '  .grp-jkp td { background: #5549D4 !important; color: #fff !important; }',
+        '  .grp-jkn td { background: #00B88A !important; color: #fff !important; }',
+        '  .search-bar, .kpi-grid { display: none !important; }',
+        '  .sec-card { border: none !important; box-shadow: none !important; margin-bottom: 4px; }',
+        '  .sec-head { padding: 6px 8px !important; border-bottom: 2px solid #1a3f7a; margin-bottom: 4px; }',
+        '  .sec-head h3 { font-size: 10px !important; color: #1a3f7a !important; }',
+        '  .ssm-expired { background: #fce8e8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+        '  .ssm-expiring { background: #fffbe6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+        '  .row-unpaid { background: #fce8e8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+        '  .row-unknown { background: #fce8e8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+        '  strong { font-weight: 700; }',
+      ]);
+    } else {
+      rules = rules.concat([
+        '  table { width: 100%; border-collapse: collapse; page-break-inside: auto; }',
+        '  th, td { border: 1px solid #ccc; padding: 4px 7px; font-size: 10px; }',
+        '  thead { background: #1a3f7a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+        '  .badge { padding: 1px 5px; border-radius: 3px; font-size: 9px; }',
+        '  .kpi-grid { display: grid !important; }',
+        '  .kpi-card { break-inside: avoid; border: 1px solid #ccc; }',
+        '  .district-card { break-inside: avoid; }',
+        '  .sec-card { break-inside: avoid; margin-bottom: 10px; }',
+      ]);
+    }
+    rules.push('}');
+    printStyle.innerHTML = rules.join('\n');
     document.head.appendChild(printStyle);
 
-    // Build wrapper div
+    // Build wrapper — NO cover header for senarai (landscape/table-only)
     var wrapper = document.getElementById('_dpmm_print_wrapper');
     if (!wrapper) {
       wrapper = document.createElement('div');
@@ -2958,16 +3360,21 @@ function pageExport(pageId, fmt) {
       wrapper.style.cssText = 'display:none;';
       document.body.appendChild(wrapper);
     }
-    wrapper.innerHTML =
-      '<div style="font-family:sans-serif;margin-bottom:10px;">'
-      + '<h2 style="color:#1a3f7a;font-size:16px;margin:0;">DPMM Negeri Johor — ' + title + '</h2>'
-      + '<p style="color:#888;font-size:10px;margin-top:3px;">Dijana: ' + datestamp + '</p>'
-      + '</div>'
-      + pageEl.innerHTML;
+
+    if (isLandscape) {
+      // Senarai: just the table, no cover page header
+      wrapper.innerHTML = pageEl.innerHTML;
+    } else {
+      wrapper.innerHTML =
+        '<div style="font-family:sans-serif;margin-bottom:10px;">'
+        + '<h2 style="color:#1a3f7a;font-size:16px;margin:0;">DPMM Negeri Johor — ' + title + '</h2>'
+        + '<p style="color:#888;font-size:10px;margin-top:3px;">Dijana: ' + datestamp + '</p>'
+        + '</div>'
+        + pageEl.innerHTML;
+    }
 
     window.print();
 
-    // Cleanup after print dialog closes
     setTimeout(function() {
       printStyle.remove();
       wrapper.innerHTML = '';
@@ -2984,13 +3391,13 @@ function pageExportCSV(pageId) {
   filename = 'DPMM_' + pageId + '_' + new Date().toISOString().slice(0,10) + '.csv';
 
   if (pageId === 'senarai') {
-    headers = ['No.Ahli','Jawatan','Nama Syarikat','Nama PIC','No.HP','Emel','Daerah','Fasal','Status','Yuran 2025'];
+    headers = ['No.Ahli','Jawatan','Nama Syarikat','Nama PIC','No.HP','Emel','Daerah','Fasal','Status','Yuran ' + YURAN_YEAR];
     rows = [headers];
     filteredMembers.forEach(function(m) {
       rows.push([m.id, m.jawatan, m.namaSyarikat, m.namaPIC, m.hp, m.emel, m.daerah, m.fasal, m.status, isPaid(m)?'BAYAR':'BELUM'].map(function(v){ return '"'+(v||'').toString().replace(/"/g,'""')+'"'; }));
     });
   } else if (pageId === 'daerah') {
-    headers = ['Daerah','No.Ahli','Jawatan','Nama Syarikat','Nama PIC','No.HP','Yuran 2025'];
+    headers = ['Daerah','No.Ahli','Jawatan','Nama Syarikat','Nama PIC','No.HP','Yuran ' + YURAN_YEAR];
     rows = [headers];
     districtOrder.forEach(function(d) {
       districts[d].forEach(function(m) {
@@ -2998,7 +3405,7 @@ function pageExportCSV(pageId) {
       });
     });
   } else if (pageId === 'yuran') {
-    headers = ['No.Ahli','Nama Syarikat','Nama PIC','Daerah','Fasal','Status Yuran 2025','Tarikh Bayar','Kaedah Bayar','Jumlah Yuran Keseluruhan'];
+    headers = ['No.Ahli','Nama Syarikat','Nama PIC','Daerah','Fasal','Status Yuran ' + YURAN_YEAR,'Tarikh Bayar','Kaedah Bayar','Jumlah Yuran Keseluruhan'];
     rows = [headers];
     MEMBERS.forEach(function(m) {
       rows.push([m.id, m.namaSyarikat, m.namaPIC, m.daerah, m.fasal, isPaid(m)?'BAYAR':'BELUM', m.tarikhBayar2025||'—', m.kaedahBayar||'—', m.jumlahYuranKeseluruhan||0].map(function(v){ return '"'+(v||'').toString().replace(/"/g,'""')+'"'; }));
@@ -3044,7 +3451,7 @@ function exportCSV() {
   var dateStr = now.getDate() + '-' + (now.getMonth()+1) + '-' + now.getFullYear();
 
   if (pg === 'senarai' || pg === 'dashboard') {
-    rows.push(['No.','No. Ahli','Nama Syarikat / PIC','Jawatan','Fasal','Status SSM','No. SSM','Tarikh Luput SSM','Daerah','Yuran Daftar (RM)','Yuran Tahunan (RM)','Status Yuran 2025','No. HP','Emel'].join(','));
+    rows.push(['No.','No. Ahli','Nama Syarikat / PIC','Jawatan','Fasal','Status SSM','No. SSM','Tarikh Luput SSM','Daerah','Yuran Daftar (RM)','Yuran Tahunan (RM)','Status Yuran ' + YURAN_YEAR,'No. HP','Emel'].join(','));
     var sorted = sortedByJawatan(MEMBERS);
     sorted.forEach(function(m,i){
       var paid = isPaid(m) ? 'TELAH BAYAR' : 'BELUM BAYAR';
@@ -3058,7 +3465,7 @@ function exportCSV() {
       ].join(','));
     });
   } else if (pg === 'yuran') {
-    rows.push(['No.','No. Ahli','Nama Syarikat / PIC','Fasal','Yuran Tahunan (RM)','Status Yuran 2025','Tarikh Bayar'].join(','));
+    rows.push(['No.','No. Ahli','Nama Syarikat / PIC','Fasal','Yuran Tahunan (RM)','Status Yuran ' + YURAN_YEAR,'Tarikh Bayar'].join(','));
     MEMBERS.forEach(function(m,i){
       var yRate = getYuranTahunan(m.fasal);
     rows.push([i+1, q(m.id), q(m.namaSyarikat||m.namaPIC), q(m.fasal),
