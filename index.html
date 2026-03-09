@@ -2507,7 +2507,6 @@ function renderYuranPage() {
       if (isPaid(m)) fasalGroups[f].paid++;
     });
     fasalBox.innerHTML = Object.keys(fasalGroups).sort().map(function(f){
-    fasalBox.innerHTML = Object.keys(fasalGroups).sort().map(function(f){
       var g = fasalGroups[f];
       return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--gray1);">'
         +'<span style="font-weight:900;font-size:16px;color:var(--navy);font-family:var(--mono);">'+f+'</span>'
@@ -2517,6 +2516,7 @@ function renderYuranPage() {
         +'</span>'
         +'</div>';
     }).join('');
+  }
 
   /* ── UNPAID TABLE ── */
   var unpaidTbody = document.getElementById('unpaid-tbody');
