@@ -691,6 +691,10 @@ tr.row-unpaid { background: #fff0f0 !important; }
 .ssm-expired { background: #fce8e8 !important; }
 .ssm-expired td { color: var(--danger) !important; font-weight: 700 !important; }
 .ssm-expired a { color: var(--danger) !important; }
+.ssm-grp-hdr td { font-size:11.5px !important; font-weight:900 !important; letter-spacing:.8px; text-transform:uppercase; padding:7px 14px !important; border:none !important; pointer-events:none; }
+.ssm-grp-hdr.grp-expired td  { background:#c0392b !important; color:#fff !important; }
+.ssm-grp-hdr.grp-expiring td { background:#e67e22 !important; color:#fff !important; }
+.ssm-grp-hdr.grp-ok td       { background:#00875a !important; color:#fff !important; }
 
 /* ── FOLLOW-UP COUNTERS ── */
 .fu-counters { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -1130,7 +1134,7 @@ tr.row-unpaid { background: #fff0f0 !important; }
     </div>
     <div class="kpi-grid kpi-2" style="margin-bottom:18px;">
       <div class="kpi-card" style="padding:12px 18px;">
-        <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;position:relative;z-index:3;">Kadar Pembayaran <span class="yuran-year-label">2025</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;position:relative;z-index:3;">Kadar Pembayaran <span class="yuran-year-label">2025</span></div>
         <div style="display:flex;align-items:center;gap:12px;margin-top:6px;position:relative;z-index:3;">
           <div class="kpi-val" id="yuran-kpi-pct" style="font-size:28px;">—</div>
           <div style="flex:1;background:#eee;border-radius:4px;height:10px;overflow:hidden;">
@@ -1139,8 +1143,8 @@ tr.row-unpaid { background: #fff0f0 !important; }
         </div>
       </div>
       <div class="kpi-card" style="padding:12px 18px;">
-        <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px;position:relative;z-index:3;">Pecahan Mengikut Fasal</div>
-        <div id="yuran-fasal-breakdown" style="font-size:14px;position:relative;z-index:3;"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px;position:relative;z-index:3;">Pecahan Mengikut Fasal</div>
+        <div id="yuran-fasal-breakdown" style="font-size:12px;position:relative;z-index:3;"></div>
       </div>
     </div>
     <div class="sec-card" style="margin-bottom:18px;">
@@ -1879,8 +1883,8 @@ async function loadSupabaseBackups() {
         : '<span style="color:var(--primary);font-weight:700;font-size:11px;">👆 Manual</span>';
       return '<tr>'
         + '<td class="row-num">' + (i+1) + '</td>'
-        + '<td style="font-weight:700;">' + dateStr + '</td>'
-        + '<td style="font-family:var(--mono);">' + timeStr + '</td>'
+        + '<td style="font-weight:700;font-size:12px;">' + dateStr + '</td>'
+        + '<td style="font-size:12px;font-family:var(--mono);">' + timeStr + '</td>'
         + '<td style="text-align:center;font-family:var(--mono);font-weight:700;color:var(--navy2);">' + (b.total_records||'—') + '</td>'
         + '<td style="text-align:center;">' + jenis + '</td>'
         + '<td style="text-align:center;"><button class="btn btn-white btn-xs" onclick="downloadBackupSnapshot(' + b.id + ')">⬇ Muat Turun</button></td>'
@@ -2119,12 +2123,12 @@ function renderMainTable() {
     var rowCls = st2==='expired' ? 'ssm-expired' : st2==='expiring' ? 'ssm-expiring' : '';
     html += '<tr class="clickable-row ' + rowCls + '" onclick="openModal(\'' + m.id + '\')">';
     html += '<td class="row-num">' + (i+1) + '</td>';
-    html += '<td><strong style="font-family:var(--mono);font-size:13px;">' + val(m.id) + '</strong></td>';
-    html += '<td style="font-weight:700;">' + val(JAWATAN_LABEL[m.jawatan],m.jawatan) + '</td>';
+    html += '<td><strong style="font-family:var(--mono);font-size:12px;">' + val(m.id) + '</strong></td>';
+    html += '<td style="font-size:12px;font-weight:700;">' + val(JAWATAN_LABEL[m.jawatan],m.jawatan) + '</td>';
     html += '<td><strong style="font-size:13px;">' + val(m.namaSyarikat) + '</strong></td>';
-    html += '<td>' + val(m.namaPIC) + '</td>';
-    html += '<td><a href="tel:' + (m.hp||'') + '" onclick="event.stopPropagation()" style="font-family:var(--mono);font-size:13px;color:var(--navy);font-weight:700;">' + val(m.hp) + '</a></td>';
-    html += '<td>' + val(m.daerah) + '</td>';
+    html += '<td style="font-size:12.5px;">' + val(m.namaPIC) + '</td>';
+    html += '<td><a href="tel:' + (m.hp||'') + '" onclick="event.stopPropagation()" style="font-family:var(--mono);font-size:12px;color:var(--navy);font-weight:700;">' + val(m.hp) + '</a></td>';
+    html += '<td style="font-size:12px;">' + val(m.daerah) + '</td>';
     html += '<td>' + badge(val(m.fasal), m.status==='SB'?'badge-gray':'badge-navy') + '</td>';
     html += '<td>' + yuranBadge(m) + '</td>';
     html += '</tr>';
@@ -2473,10 +2477,9 @@ function renderYuranPage() {
     });
     fasalBox.innerHTML = Object.keys(fasalGroups).sort().map(function(f){
       var g = fasalGroups[f];
-      var pct = g.total ? Math.round(g.paid/g.total*100) : 0;
-      return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;padding:2px 0;border-bottom:1px dotted #e5e5e5;">'
-        +'<span style="font-weight:700;color:var(--text);font-size:13px;">'+f+'</span>'
-        +'<span style="font-family:var(--mono);font-size:13px;"><strong style="color:var(--success);">'+g.paid+'</strong><span style="color:var(--muted);">/'+g.total+'</span> &nbsp;<span style="color:var(--primary);font-size:12px;">'+pct+'%</span> &nbsp;<span style="color:#888;font-size:12px;">RM'+g.rate+'</span></span>'
+      return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">'
+        +'<span style="font-weight:700;color:#555;">'+f+'</span>'
+        +'<span style="font-family:var(--mono);font-size:11px;"><strong style="color:var(--success);">'+g.paid+'</strong>/<span style="color:var(--muted);">'+g.total+'</span> &nbsp;<span style="color:var(--primary);">RM'+g.rate+'/thn</span></span>'
         +'</div>';
     }).join('');
   }
@@ -2488,11 +2491,11 @@ function renderYuranPage() {
     var rate = getYuranTahunan(m.fasal);
     return '<tr class="clickable-row row-unpaid" onclick="openModal(\''+m.id+'\')">'+
       '<td class="row-num">'+(i+1)+'</td>'+
-      '<td><strong style="font-family:var(--mono);font-size:13px;">'+m.id+'</strong></td>'+
-      '<td><strong>'+val(m.namaSyarikat)+'</strong><br><span style="font-size:12px;color:#666;">'+val(m.namaPIC)+'</span></td>'+
-      '<td>'+val(m.daerah)+'</td>'+
+      '<td><strong style="font-family:var(--mono);font-size:12px;">'+m.id+'</strong></td>'+
+      '<td><strong style="font-size:13px;">'+val(m.namaSyarikat)+'</strong><br><span style="font-size:11px;color:#666;">'+val(m.namaPIC)+'</span></td>'+
+      '<td style="font-size:12px;">'+val(m.daerah)+'</td>'+
       '<td>'+badge(val(m.fasal),m.status==='SB'?'badge-gray':'badge-navy')+'</td>'+
-      '<td style="font-family:var(--mono);font-weight:800;color:var(--danger);text-align:center;font-size:13px;">RM '+rate+'</td>'+
+      '<td style="font-family:var(--mono);font-weight:800;color:var(--danger);text-align:center;font-size:14px;">RM '+rate+'</td>'+
       '<td><a href="tel:'+(m.hp||'')+'" onclick="event.stopPropagation()" style="font-family:var(--mono);font-size:12px;color:var(--navy);font-weight:700;">'+val(m.hp)+'</a></td>'+
       '<td>'+waBtn+'</td>'+
       '</tr>';
@@ -2508,8 +2511,8 @@ function renderYuranPage() {
     }).join('');
     return '<tr>'+
       '<td class="row-num">'+(i+1)+'</td>'+
-      '<td><strong style="font-family:var(--mono);font-size:13px;">'+m.id+'</strong></td>'+
-      '<td><strong>'+val(m.namaSyarikat)+'</strong><br><span style="font-size:12px;color:#666;">'+val(m.namaPIC)+'</span></td>'+
+      '<td><strong style="font-family:var(--mono);font-size:12px;">'+m.id+'</strong></td>'+
+      '<td><strong style="font-size:13px;">'+val(m.namaSyarikat)+'</strong><br><span style="font-size:11px;color:#666;">'+val(m.namaPIC)+'</span></td>'+
       '<td style="font-family:var(--mono);font-size:12px;text-align:center;">'+val(entry2025.tarikh)+'</td>'+
       '<td style="font-size:12px;">'+val(entry2025.kaedah)+'</td>'+
       '<td style="text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;">'+hist.length+' tahun<br>'+histRows+'</td>'+
@@ -2544,18 +2547,32 @@ function renderSSMPage() {
   set('ssm-kpi-ok', ok);
   set('ssm-kpi-total', ssmM.length);
   var tbody = document.getElementById('ssm-tbody');
-  if (tbody) tbody.innerHTML = ssmM.map(function(m,i){
-    var st = ssmStatus(m.ssmDeadline);
-    var rowCls = st==='expired' ? 'ssm-expired clickable-row' : st==='expiring' ? 'ssm-expiring clickable-row' : 'clickable-row';
-    var stBadge = st==='expired' ? badge('LUPUT','badge-unpaid') : st==='expiring' ? badge('HAMPIR LUPUT','badge-gold') : badge('SAH','badge-ok');
-    return '<tr class="' + rowCls + '" onclick="openModal(\'' + m.id + '\')">'
-      + '<td class="row-num">' + (i+1) + '</td>'
-      + '<td><strong>' + (m.namaSyarikat||'—') + '</strong><br><span style="font-size:11px;color:#555;font-style:italic;">' + (m.namaPIC||'—') + '</span></td>'
-      + '<td>' + (m.noSSM||'—') + '</td>'
-      + '<td style="font-family:monospace">' + (m.ssmDeadline||'—') + '</td>'
-      + '<td style="text-align:center">' + stBadge + '</td>'
-      + '</tr>';
-  }).join('');
+  if (tbody) {
+    var groups = [
+      { key: 'expired',  cls: 'grp-expired',  label: '🔴  LUPUT — Tindakan Segera Diperlukan',          count: exp },
+      { key: 'expiring', cls: 'grp-expiring', label: '🟡  HAMPIR LUPUT — Perlu Diperbaharui Segera',     count: expiring },
+      { key: 'ok',       cls: 'grp-ok',       label: '🟢  SAH — SSM Dalam Tempoh Sah',                  count: ok }
+    ];
+    var rows = '';
+    groups.forEach(function(grp) {
+      var members = ssmM.filter(function(m){ return (ssmStatus(m.ssmDeadline)||'ok') === grp.key; });
+      if (members.length === 0) return;
+      rows += '<tr class="ssm-grp-hdr ' + grp.cls + '"><td colspan="5">' + grp.label + ' (' + members.length + ')</td></tr>';
+      members.forEach(function(m, i) {
+        var st = ssmStatus(m.ssmDeadline) || 'ok';
+        var rowCls = st==='expired' ? 'ssm-expired clickable-row' : st==='expiring' ? 'ssm-expiring clickable-row' : 'clickable-row';
+        var stBadge = st==='expired' ? badge('LUPUT','badge-unpaid') : st==='expiring' ? badge('HAMPIR LUPUT','badge-gold') : badge('SAH','badge-ok');
+        rows += '<tr class="' + rowCls + '" onclick="openModal(\'' + m.id + '\')">'
+          + '<td class="row-num">' + (i+1) + '</td>'
+          + '<td><strong>' + (m.namaSyarikat||'—') + '</strong><br><span style="font-size:12px;color:#555;font-style:italic;">' + (m.namaPIC||'—') + '</span></td>'
+          + '<td>' + (m.noSSM||'—') + '</td>'
+          + '<td style="font-family:monospace">' + (m.ssmDeadline||'—') + '</td>'
+          + '<td style="text-align:center">' + stBadge + '</td>'
+          + '</tr>';
+      });
+    });
+    tbody.innerHTML = rows;
+  }
 }
 
 function renderFollowUpPage() {
